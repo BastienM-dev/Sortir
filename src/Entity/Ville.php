@@ -6,6 +6,7 @@ use App\Repository\VilleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: VilleRepository::class)]
 #[ORM\Table(name: 'villes')]
@@ -16,11 +17,15 @@ class Ville
     #[ORM\Column(name: 'no_ville')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'nom_ville', length: 30)]
-    private ?string $nom = null;
+    #[ORM\Column(name: 'nom_ville', length: 30, nullable: false)]
+    #[Assert\NotBlank(message: 'Le nom de la ville est obligatoire')]
+    #[Assert\Length(max: 30)]
+    private string $nom;
 
-    #[ORM\Column(name: 'code_postal', length: 10)]
-    private ?string $codePostal = null;
+    #[ORM\Column(name: 'code_postal', length: 10, nullable: false)]
+    #[Assert\NotBlank(message: 'Le code postal est obligatoire')]
+    #[Assert\Length(max: 10)]
+    private string $codePostal;
 
     /**
      * @var Collection<int, Lieu>
@@ -38,7 +43,7 @@ class Ville
         return $this->id;
     }
 
-    public function getNom(): ?string
+    public function getNom(): string
     {
         return $this->nom;
     }
@@ -50,7 +55,7 @@ class Ville
         return $this;
     }
 
-    public function getCodePostal(): ?string
+    public function getCodePostal(): string
     {
         return $this->codePostal;
     }
@@ -85,28 +90,6 @@ class Ville
         if ($this->lieux->removeElement($lieu)) {
             if ($lieu->getVille() === $this) {
                 $lieu->setVille(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function addLieux(Lieu $lieux): static
-    {
-        if (!$this->lieux->contains($lieux)) {
-            $this->lieux->add($lieux);
-            $lieux->setVille($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLieux(Lieu $lieux): static
-    {
-        if ($this->lieux->removeElement($lieux)) {
-            // set the owning side to null (unless already changed)
-            if ($lieux->getVille() === $this) {
-                $lieux->setVille(null);
             }
         }
 

@@ -18,27 +18,27 @@ class Sortie
     #[ORM\Column(name: 'no_sortie')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 30)]
+    #[ORM\Column(length: 30, nullable: false)]
     #[Assert\NotBlank(message: 'Le nom de la sortie est obligatoire')]
     #[Assert\Length(max: 30)]
-    private ?string $nom = null;
+    private string $nom;
 
-    #[ORM\Column(name: 'datedebut', type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'datedebut', type: Types::DATETIME_MUTABLE, nullable: false)]
     #[Assert\NotBlank(message: 'La date de début est obligatoire')]
-    private ?\DateTimeInterface $dateHeureDebut = null;
+    private \DateTimeInterface $dateHeureDebut;
 
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     #[Assert\Positive(message: 'La durée doit être positive')]
     private ?int $duree = null;
 
-    #[ORM\Column(name: 'datecloture', type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'datecloture', type: Types::DATETIME_MUTABLE, nullable: false)]
     #[Assert\NotBlank(message: 'La date limite d\'inscription est obligatoire')]
-    private ?\DateTimeInterface $dateLimiteInscription = null;
+    private \DateTimeInterface $dateLimiteInscription;
 
-    #[ORM\Column(name: 'nbinscriptionsmax')]
+    #[ORM\Column(name: 'nbinscriptionsmax', nullable: false)]
     #[Assert\NotBlank(message: 'Le nombre maximum d\'inscriptions est obligatoire')]
     #[Assert\Positive(message: 'Le nombre maximum doit être positif')]
-    private ?int $nbInscriptionsMax = null;
+    private int $nbInscriptionsMax;
 
     #[ORM\Column(name: 'descriptioninfos', type: Types::TEXT, nullable: true)]
     #[Assert\Length(max: 500)]
@@ -51,20 +51,20 @@ class Sortie
     private ?string $motifAnnulation = null;
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]
-    #[ORM\JoinColumn(name: 'lieux_no_lieu', nullable: false)]
-    private ?Lieu $lieu = null;
+    #[ORM\JoinColumn(name: 'lieux_no_lieu', referencedColumnName: 'no_lieu', nullable: false)]
+    private Lieu $lieu;
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]
-    #[ORM\JoinColumn(name: 'etats_no_etat', nullable: false)]
-    private ?Etat $etat = null;
+    #[ORM\JoinColumn(name: 'etats_no_etat', referencedColumnName: 'no_etat', nullable: false)]
+    private Etat $etat;
 
     #[ORM\ManyToOne(inversedBy: 'sortiesOrganisees')]
-    #[ORM\JoinColumn(name: 'organisateur', nullable: false)]
-    private ?Participant $organisateur = null;
+    #[ORM\JoinColumn(name: 'organisateur', referencedColumnName: 'no_participant', nullable: false)]
+    private Participant $organisateur;
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]
-    #[ORM\JoinColumn(name: 'sites_no_site', nullable: false)]
-    private ?Site $site = null;
+    #[ORM\JoinColumn(name: 'sites_no_site', referencedColumnName: 'no_site', nullable: false)]
+    private Site $site;
 
     /**
      * @var Collection<int, Inscription>
@@ -82,7 +82,7 @@ class Sortie
         return $this->id;
     }
 
-    public function getNom(): ?string
+    public function getNom(): string
     {
         return $this->nom;
     }
@@ -94,7 +94,7 @@ class Sortie
         return $this;
     }
 
-    public function getDateHeureDebut(): ?\DateTimeInterface
+    public function getDateHeureDebut(): \DateTimeInterface
     {
         return $this->dateHeureDebut;
     }
@@ -118,7 +118,7 @@ class Sortie
         return $this;
     }
 
-    public function getDateLimiteInscription(): ?\DateTimeInterface
+    public function getDateLimiteInscription(): \DateTimeInterface
     {
         return $this->dateLimiteInscription;
     }
@@ -130,7 +130,7 @@ class Sortie
         return $this;
     }
 
-    public function getNbInscriptionsMax(): ?int
+    public function getNbInscriptionsMax(): int
     {
         return $this->nbInscriptionsMax;
     }
@@ -178,48 +178,48 @@ class Sortie
         return $this;
     }
 
-    public function getLieu(): ?Lieu
+    public function getLieu(): Lieu
     {
         return $this->lieu;
     }
 
-    public function setLieu(?Lieu $lieu): static
+    public function setLieu(Lieu $lieu): static
     {
         $this->lieu = $lieu;
 
         return $this;
     }
 
-    public function getEtat(): ?Etat
+    public function getEtat(): Etat
     {
         return $this->etat;
     }
 
-    public function setEtat(?Etat $etat): static
+    public function setEtat(Etat $etat): static
     {
         $this->etat = $etat;
 
         return $this;
     }
 
-    public function getOrganisateur(): ?Participant
+    public function getOrganisateur(): Participant
     {
         return $this->organisateur;
     }
 
-    public function setOrganisateur(?Participant $organisateur): static
+    public function setOrganisateur(Participant $organisateur): static
     {
         $this->organisateur = $organisateur;
 
         return $this;
     }
 
-    public function getSite(): ?Site
+    public function getSite(): Site
     {
         return $this->site;
     }
 
-    public function setSite(?Site $site): static
+    public function setSite(Site $site): static
     {
         $this->site = $site;
 

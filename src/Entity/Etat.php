@@ -6,6 +6,7 @@ use App\Repository\EtatRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EtatRepository::class)]
 #[ORM\Table(name: 'etats')]
@@ -16,8 +17,10 @@ class Etat
     #[ORM\Column(name: 'no_etat')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 30)]
-    private ?string $libelle = null;
+    #[ORM\Column(length: 30, nullable: false)]
+    #[Assert\NotBlank(message: 'Le libellé de l\'état est obligatoire')]
+    #[Assert\Length(max: 30)]
+    private string $libelle;
 
     /**
      * @var Collection<int, Sortie>
@@ -35,7 +38,7 @@ class Etat
         return $this->id;
     }
 
-    public function getLibelle(): ?string
+    public function getLibelle(): string
     {
         return $this->libelle;
     }
@@ -68,31 +71,8 @@ class Etat
     public function removeSortie(Sortie $sortie): static
     {
         if ($this->sorties->removeElement($sortie)) {
-            // set the owning side to null (unless already changed)
             if ($sortie->getEtat() === $this) {
                 $sortie->setEtat(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function addSorty(Sortie $sorty): static
-    {
-        if (!$this->sorties->contains($sorty)) {
-            $this->sorties->add($sorty);
-            $sorty->setEtat($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSorty(Sortie $sorty): static
-    {
-        if ($this->sorties->removeElement($sorty)) {
-            // set the owning side to null (unless already changed)
-            if ($sorty->getEtat() === $this) {
-                $sorty->setEtat(null);
             }
         }
 
