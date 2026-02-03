@@ -111,26 +111,4 @@ class Site
 
         return $this;
     }
-
-    public function addSorty(Sortie $sorty): static
-    {
-        if (!$this->sorties->contains($sorty)) {
-            $this->sorties->add($sorty);
-            $sorty->setSite($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSorty(Sortie $sorty): static
-    {
-        if ($this->sorties->removeElement($sorty)) {
-            // set the owning side to null (unless already changed)
-            if ($sorty->getSite() === $this) {
-                $sorty->setSite(null);
-            }
-        }
-
-        return $this;
-    }
 }

@@ -30,7 +30,7 @@ class Lieu
     private ?string $longitude = null;
 
     #[ORM\ManyToOne(inversedBy: 'lieux')]
-    #[ORM\JoinColumn(name: 'villes_no_ville', nullable: false)]
+    #[ORM\JoinColumn(name: 'villes_no_ville', referencedColumnName: 'no_ville', nullable: false)]
     private ?Ville $ville = null;
 
     /**
@@ -132,28 +132,6 @@ class Lieu
         if ($this->sorties->removeElement($sortie)) {
             if ($sortie->getLieu() === $this) {
                 $sortie->setLieu(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function addSorty(Sortie $sorty): static
-    {
-        if (!$this->sorties->contains($sorty)) {
-            $this->sorties->add($sorty);
-            $sorty->setLieu($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSorty(Sortie $sorty): static
-    {
-        if ($this->sorties->removeElement($sorty)) {
-            // set the owning side to null (unless already changed)
-            if ($sorty->getLieu() === $this) {
-                $sorty->setLieu(null);
             }
         }
 
