@@ -90,26 +90,4 @@ class Ville
 
         return $this;
     }
-
-    public function addLieux(Lieu $lieux): static
-    {
-        if (!$this->lieux->contains($lieux)) {
-            $this->lieux->add($lieux);
-            $lieux->setVille($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLieux(Lieu $lieux): static
-    {
-        if ($this->lieux->removeElement($lieux)) {
-            // set the owning side to null (unless already changed)
-            if ($lieux->getVille() === $this) {
-                $lieux->setVille(null);
-            }
-        }
-
-        return $this;
-    }
 }

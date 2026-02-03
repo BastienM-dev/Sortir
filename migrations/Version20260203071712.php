@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20260202144150 extends AbstractMigration
+final class Version20260203071712 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -27,14 +27,14 @@ final class Version20260202144150 extends AbstractMigration
         $this->addSql('CREATE TABLE sites (no_site INT AUTO_INCREMENT NOT NULL, nom_site VARCHAR(30) NOT NULL, PRIMARY KEY (no_site)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE sorties (no_sortie INT AUTO_INCREMENT NOT NULL, nom VARCHAR(30) NOT NULL, datedebut DATETIME NOT NULL, duree INT DEFAULT NULL, datecloture DATETIME NOT NULL, nbinscriptionsmax INT NOT NULL, descriptioninfos LONGTEXT DEFAULT NULL, urlPhoto VARCHAR(250) DEFAULT NULL, motif_annulation LONGTEXT DEFAULT NULL, lieux_no_lieu INT NOT NULL, etats_no_etat INT NOT NULL, organisateur INT NOT NULL, sites_no_site INT NOT NULL, INDEX IDX_488163E84E23F7D7 (lieux_no_lieu), INDEX IDX_488163E8FCD21D77 (etats_no_etat), INDEX IDX_488163E84BD76D44 (organisateur), INDEX IDX_488163E851C3F4BB (sites_no_site), PRIMARY KEY (no_sortie)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE villes (no_ville INT AUTO_INCREMENT NOT NULL, nom_ville VARCHAR(30) NOT NULL, code_postal VARCHAR(10) NOT NULL, PRIMARY KEY (no_ville)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('ALTER TABLE inscriptions ADD CONSTRAINT FK_74E0281CEF759E07 FOREIGN KEY (participants_no_participant) REFERENCES participants (id)');
-        $this->addSql('ALTER TABLE inscriptions ADD CONSTRAINT FK_74E0281CC731F823 FOREIGN KEY (sorties_no_sortie) REFERENCES sorties (id)');
-        $this->addSql('ALTER TABLE lieux ADD CONSTRAINT FK_9E44A8AE395FAFC3 FOREIGN KEY (villes_no_ville) REFERENCES villes (id)');
-        $this->addSql('ALTER TABLE participants ADD CONSTRAINT FK_7169709251C3F4BB FOREIGN KEY (sites_no_site) REFERENCES sites (id)');
-        $this->addSql('ALTER TABLE sorties ADD CONSTRAINT FK_488163E84E23F7D7 FOREIGN KEY (lieux_no_lieu) REFERENCES lieux (id)');
-        $this->addSql('ALTER TABLE sorties ADD CONSTRAINT FK_488163E8FCD21D77 FOREIGN KEY (etats_no_etat) REFERENCES etats (id)');
-        $this->addSql('ALTER TABLE sorties ADD CONSTRAINT FK_488163E84BD76D44 FOREIGN KEY (organisateur) REFERENCES participants (id)');
-        $this->addSql('ALTER TABLE sorties ADD CONSTRAINT FK_488163E851C3F4BB FOREIGN KEY (sites_no_site) REFERENCES sites (id)');
+        $this->addSql('ALTER TABLE inscriptions ADD CONSTRAINT FK_74E0281CEF759E07 FOREIGN KEY (participants_no_participant) REFERENCES participants (no_participant)');
+        $this->addSql('ALTER TABLE inscriptions ADD CONSTRAINT FK_74E0281CC731F823 FOREIGN KEY (sorties_no_sortie) REFERENCES sorties (no_sortie)');
+        $this->addSql('ALTER TABLE lieux ADD CONSTRAINT FK_9E44A8AE395FAFC3 FOREIGN KEY (villes_no_ville) REFERENCES villes (no_ville)');
+        $this->addSql('ALTER TABLE participants ADD CONSTRAINT FK_7169709251C3F4BB FOREIGN KEY (sites_no_site) REFERENCES sites (no_site)');
+        $this->addSql('ALTER TABLE sorties ADD CONSTRAINT FK_488163E84E23F7D7 FOREIGN KEY (lieux_no_lieu) REFERENCES lieux (no_lieu)');
+        $this->addSql('ALTER TABLE sorties ADD CONSTRAINT FK_488163E8FCD21D77 FOREIGN KEY (etats_no_etat) REFERENCES etats (no_etat)');
+        $this->addSql('ALTER TABLE sorties ADD CONSTRAINT FK_488163E84BD76D44 FOREIGN KEY (organisateur) REFERENCES participants (no_participant)');
+        $this->addSql('ALTER TABLE sorties ADD CONSTRAINT FK_488163E851C3F4BB FOREIGN KEY (sites_no_site) REFERENCES sites (no_site)');
     }
 
     public function down(Schema $schema): void

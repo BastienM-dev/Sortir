@@ -12,12 +12,12 @@ class Inscription
 {
     #[ORM\Id]
     #[ORM\ManyToOne(inversedBy: 'inscriptions')]
-    #[ORM\JoinColumn(name: 'participants_no_participant', nullable: false)]
+    #[ORM\JoinColumn(name: 'participants_no_participant', referencedColumnName: 'no_participant', nullable: false)]
     private ?Participant $participant = null;
 
     #[ORM\Id]
     #[ORM\ManyToOne(inversedBy: 'inscriptions')]
-    #[ORM\JoinColumn(name: 'sorties_no_sortie', nullable: false)]
+    #[ORM\JoinColumn(name: 'sorties_no_sortie', referencedColumnName: 'no_sortie', nullable: false)]
     private ?Sortie $sortie = null;
 
     #[ORM\Column(name: 'date_inscription', type: Types::DATETIME_MUTABLE)]

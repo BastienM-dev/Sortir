@@ -68,31 +68,8 @@ class Etat
     public function removeSortie(Sortie $sortie): static
     {
         if ($this->sorties->removeElement($sortie)) {
-            // set the owning side to null (unless already changed)
             if ($sortie->getEtat() === $this) {
                 $sortie->setEtat(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function addSorty(Sortie $sorty): static
-    {
-        if (!$this->sorties->contains($sorty)) {
-            $this->sorties->add($sorty);
-            $sorty->setEtat($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSorty(Sortie $sorty): static
-    {
-        if ($this->sorties->removeElement($sorty)) {
-            // set the owning side to null (unless already changed)
-            if ($sorty->getEtat() === $this) {
-                $sorty->setEtat(null);
             }
         }
 
