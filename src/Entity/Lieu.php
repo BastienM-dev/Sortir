@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: LieuRepository::class)]
 #[ORM\Table(name: 'lieux')]
@@ -17,10 +18,13 @@ class Lieu
     #[ORM\Column(name: 'no_lieu')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'nom_lieu', length: 30)]
-    private ?string $nom = null;
+    #[ORM\Column(name: 'nom_lieu', length: 30, nullable: false)]
+    #[Assert\NotBlank(message: 'Le nom du lieu est obligatoire')]
+    #[Assert\Length(max: 30)]
+    private string $nom;
 
     #[ORM\Column(length: 30, nullable: true)]
+    #[Assert\Length(max: 30)]
     private ?string $rue = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 8, nullable: true)]
@@ -31,7 +35,7 @@ class Lieu
 
     #[ORM\ManyToOne(inversedBy: 'lieux')]
     #[ORM\JoinColumn(name: 'villes_no_ville', referencedColumnName: 'no_ville', nullable: false)]
-    private ?Ville $ville = null;
+    private Ville $ville;
 
     /**
      * @var Collection<int, Sortie>
@@ -49,7 +53,7 @@ class Lieu
         return $this->id;
     }
 
-    public function getNom(): ?string
+    public function getNom(): string
     {
         return $this->nom;
     }
@@ -97,12 +101,12 @@ class Lieu
         return $this;
     }
 
-    public function getVille(): ?Ville
+    public function getVille(): Ville
     {
         return $this->ville;
     }
 
-    public function setVille(?Ville $ville): static
+    public function setVille(Ville $ville): static
     {
         $this->ville = $ville;
 

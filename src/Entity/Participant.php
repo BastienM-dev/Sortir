@@ -23,42 +23,42 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'no_participant')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 30, unique: true)]
+    #[ORM\Column(length: 30, unique: true, nullable: false)]
     #[Assert\NotBlank(message: 'Le pseudo est obligatoire')]
     #[Assert\Length(max: 30)]
-    private ?string $pseudo = null;
+    private string $pseudo;
 
-    #[ORM\Column(length: 30)]
+    #[ORM\Column(length: 30, nullable: false)]
     #[Assert\NotBlank(message: 'Le nom est obligatoire')]
     #[Assert\Length(max: 30)]
-    private ?string $nom = null;
+    private string $nom;
 
-    #[ORM\Column(length: 30)]
+    #[ORM\Column(length: 30, nullable: false)]
     #[Assert\NotBlank(message: 'Le prénom est obligatoire')]
     #[Assert\Length(max: 30)]
-    private ?string $prenom = null;
+    private string $prenom;
 
     #[ORM\Column(length: 15, nullable: true)]
     #[Assert\Length(max: 15)]
     private ?string $telephone = null;
 
-    #[ORM\Column(length: 180, unique: true)]
+    #[ORM\Column(length: 180, unique: true, nullable: false)]
     #[Assert\NotBlank(message: 'L\'email est obligatoire')]
     #[Assert\Email(message: 'L\'email {{ value }} n\'est pas valide')]
-    private ?string $mail = null;
+    private string $mail;
 
-    #[ORM\Column(name: 'mot_de_passe')]
-    private ?string $password = null;
+    #[ORM\Column(name: 'mot_de_passe', nullable: false)]
+    private string $password;
 
-    #[ORM\Column(options: ['default' => false])]
+    #[ORM\Column(nullable: false, options: ['default' => false])]
     private bool $administrateur = false;
 
-    #[ORM\Column(options: ['default' => true])]
+    #[ORM\Column(nullable: false, options: ['default' => true])]
     private bool $actif = true;
 
     #[ORM\ManyToOne(inversedBy: 'participants')]
     #[ORM\JoinColumn(name: 'sites_no_site', referencedColumnName: 'no_site', nullable: false)]
-    private ?Site $site = null;
+    private Site $site;
 
     /**
      * @var Collection<int, Sortie>
@@ -83,7 +83,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
-    public function getPseudo(): ?string
+    public function getPseudo(): string
     {
         return $this->pseudo;
     }
@@ -95,7 +95,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getNom(): ?string
+    public function getNom(): string
     {
         return $this->nom;
     }
@@ -107,7 +107,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPrenom(): ?string
+    public function getPrenom(): string
     {
         return $this->prenom;
     }
@@ -131,7 +131,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getMail(): ?string
+    public function getMail(): string
     {
         return $this->mail;
     }
@@ -146,7 +146,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): ?string
+    public function getPassword(): string
     {
         return $this->password;
     }
@@ -182,12 +182,12 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getSite(): ?Site
+    public function getSite(): Site
     {
         return $this->site;
     }
 
-    public function setSite(?Site $site): static
+    public function setSite(Site $site): static
     {
         $this->site = $site;
 

@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profil - {{ participant.pseudo }}{% endblock %}
+
+{% block body %}
+    <h1>Profil de {{ participant.pseudo }}</h1>
+
+    <div>
+        <p><strong>Nom :</strong> {{ participant.nom }}</p>
+        <p><strong>Prénom :</strong> {{ participant.prenom }}</p>
+
+        <p><strong>Email :</strong> {{ participant.mail }}</p>
+
+        {% if participant.telephone %}
+            <p><strong>Téléphone :</strong> {{ participant.telephone }}</p>
+        {% endif %}
+
+        <p><strong>Site :</strong> {{ participant.site.nom }}</p>
+
+        <p>
+            <strong>Statut :</strong>
+            {% if participant.actif %}
+                Actif
+            {% else %}
+                Inactif
+            {% endif %}
+        </p>
+
+        {% if participant.administrateur %}
+            <p><strong>Rôle :</strong> Administrateur</p>
+        {% endif %}
+    </div>
+
+    <p style="margin-top: 20px;">
+        <a href="{{ path('main_index') }}">Retour à l'accueil</a>
+    </p>
+{% endblock %}
