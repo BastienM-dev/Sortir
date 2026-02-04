@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Inscription;
+use App\Entity\Participant;
 use App\Entity\Sortie;
+use App\Form\SortieType;
 use App\Repository\EtatRepository;
 use App\Repository\SortieRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,6 +19,132 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/sortie', name: 'sortie_')]
 class SortieController extends AbstractController
 {
+    // ==========================================
+    // PARTIE JUSTINE - Création/Modification
+    // ==========================================
+
+    #[Route('/creer', name: 'create', methods: ['GET', 'POST'])]
+    public function create(
+        Request $request,
+        EntityManagerInterface $em,
+        EtatRepository $etatRepository
+    ): Response {
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
+        /** @var Participant $user */
+        $user = $this->getUser();
+        if (!$user instanceof Participant) {
+            throw $this->createAccessDeniedException("Utilisateur invalide.");
+        }
+
+        $sortie = new Sortie();
+
+        // Champs automatiques
+        $sortie->setOrganisateur($user);
+        $sortie->setSite($user->getSite());
+
+        $form = $this->createForm(SortieType::class, $sortie);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $etatEnCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
+            $etatOuverte    = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
+
+            if (!$etatEnCreation || !$etatOuverte) {
+                throw $this->createNotFoundException(
+                    "Les états 'En création' et/ou 'Ouverte' n'existent pas en base."
+                );
+            }
+
+            if ($form->get('publish')->isClicked()) {
+                $sortie->setEtat($etatOuverte);
+                $this->addFlash('success', 'Sortie publiée ✅');
+            } else {
+                $sortie->setEtat($etatEnCreation);
+                $this->addFlash('success', 'Sortie enregistrée (En création) ✅');
+            }
+
+            $em->persist($sortie);
+            $em->flush();
+
+            return $this->redirectToRoute('main_index');
+        }
+
+        return $this->render('sortie/create.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/{id}/modifier', name: 'edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function edit(
+        Sortie $sortie,
+        Request $request,
+        EntityManagerInterface $em,
+        EtatRepository $etatRepository
+    ): Response {
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
+        /** @var Participant $user */
+        $user = $this->getUser();
+        if (!$user instanceof Participant) {
+            throw $this->createAccessDeniedException("Utilisateur invalide.");
+        }
+
+        // Vérif organisateur
+        if ($sortie->getOrganisateur()?->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException(
+                "Tu n'es pas l'organisateur de cette sortie."
+            );
+        }
+
+        // Vérif état : uniquement "En création"
+        $etat = $sortie->getEtat();
+        $libelleEtat = $etat?->getLibelle();
+
+        if ($libelleEtat !== 'En création') {
+            $this->addFlash(
+                'error',
+                "Impossible de modifier : la sortie n'est plus en création."
+            );
+            return $this->redirectToRoute('main_index');
+        }
+
+        $form = $this->createForm(SortieType::class, $sortie);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $etatEnCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
+            $etatOuverte    = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
+
+            if (!$etatEnCreation || !$etatOuverte) {
+                throw $this->createNotFoundException(
+                    "Les états 'En création' et/ou 'Ouverte' n'existent pas en base."
+                );
+            }
+
+            if ($form->get('publish')->isClicked()) {
+                $sortie->setEtat($etatOuverte);
+                $this->addFlash('success', 'Sortie publiée ✅');
+            } else {
+                $sortie->setEtat($etatEnCreation);
+                $this->addFlash('success', 'Sortie modifiée ✅');
+            }
+
+            $em->flush();
+
+            return $this->redirectToRoute('main_index');
+        }
+
+        return $this->render('sortie/edit.html.twig', [
+            'form' => $form->createView(),
+            'sortie' => $sortie,
+        ]);
+    }
+
+    // ==========================================
+    // PARTIE BASTIEN - Inscriptions/Annulation
+    // ==========================================
+
     /**
      * Inscription à une sortie
      */
@@ -65,12 +193,10 @@ class SortieController extends AbstractController
         $inscription = new Inscription();
         $inscription->setParticipant($participant);
         $inscription->setSortie($sortie);
-        // La dateInscription est automatiquement définie dans le constructeur
 
         $em->persist($inscription);
 
         // 8. Vérifier si la sortie doit passer en état "Clôturée"
-        // Après cette inscription, si on atteint le nombre max
         if ($sortie->getNbInscrits() + 1 >= $sortie->getNbInscriptionsMax()) {
             $etatCloturee = $etatRepository->findOneBy(['libelle' => 'Clôturée']);
             if ($etatCloturee) {
@@ -121,7 +247,6 @@ class SortieController extends AbstractController
         }
 
         // 5. Vérifier si la sortie doit repasser en état "Ouverte"
-        // Si elle était clôturée et qu'il y a maintenant des places + date limite OK
         if ($sortie->getEtat()->getLibelle() === 'Clôturée') {
             if ($sortie->getNbInscrits() - 1 < $sortie->getNbInscriptionsMax()
                 && $now <= $sortie->getDateLimiteInscription()) {
@@ -153,7 +278,7 @@ class SortieController extends AbstractController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $participant = $this->getUser();
 
-        // 2. RÈGLE : Seul l'organisateur peut annuler (pour l'instant, admin dans itération 2)
+        // 2. RÈGLE : Seul l'organisateur peut annuler
         if ($sortie->getOrganisateur() !== $participant) {
             $this->addFlash('error', 'Seul l\'organisateur peut annuler cette sortie.');
             return $this->redirectToRoute('main_index');
