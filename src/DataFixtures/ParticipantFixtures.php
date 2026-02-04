@@ -33,20 +33,23 @@ class ParticipantFixtures extends Fixture implements DependentFixtureInterface
         $admin->setAdministrateur(true);
         $admin->setActif(true);
         $admin->setSite($this->getReference(SiteFixtures::SITE_SAINT_HERBLAIN, Site::class));
-        
+
         // Hash du mot de passe
         $hashedPassword = $this->passwordHasher->hashPassword($admin, 'admin123');
         $admin->setPassword($hashedPassword);
-        
+
         $manager->persist($admin);
+
+        // Ajouter une référence pour l'admin
+        $this->addReference('participant_admin', $admin);
 
         // Créer 19 participants normaux avec Faker
         for ($i = 1; $i <= 19; $i++) {
             $participant = new Participant();
-            
+
             $firstName = $faker->firstName();
             $lastName = $faker->lastName();
-            
+
             $participant->setPseudo(strtolower($firstName) . $i);
             $participant->setNom($lastName);
             $participant->setPrenom($firstName);
@@ -54,7 +57,7 @@ class ParticipantFixtures extends Fixture implements DependentFixtureInterface
             $participant->setTelephone($faker->phoneNumber());
             $participant->setAdministrateur(false);
             $participant->setActif($faker->boolean(90)); // 90% actifs
-            
+
             // Répartir les participants sur les 3 sites
             $siteIndex = $i % 3;
             if ($siteIndex === 0) {
@@ -64,12 +67,15 @@ class ParticipantFixtures extends Fixture implements DependentFixtureInterface
             } else {
                 $participant->setSite($this->getReference(SiteFixtures::SITE_LA_ROCHE, Site::class));
             }
-            
+
             // Mot de passe identique pour tous : "password"
             $hashedPassword = $this->passwordHasher->hashPassword($participant, 'password');
             $participant->setPassword($hashedPassword);
-            
+
             $manager->persist($participant);
+
+            // Ajouter une référence pour utiliser dans SortieFixtures
+            $this->addReference('participant_' . $i, $participant);
         }
 
         $manager->flush();
