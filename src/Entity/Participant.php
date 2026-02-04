@@ -57,8 +57,9 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $actif = true;
 
     #[ORM\ManyToOne(inversedBy: 'participants')]
-    #[ORM\JoinColumn(name: 'sites_no_site', nullable: false)]
+    #[ORM\JoinColumn(name: 'sites_no_site', referencedColumnName: 'no_site', nullable: false)]
     private ?Site $site = null;
+
 
     /**
      * @var Collection<int, Sortie>
@@ -258,7 +259,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = ['ROLE_USER'];
-        
+
         if ($this->administrateur) {
             $roles[] = 'ROLE_ADMIN';
         }
@@ -279,6 +280,8 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return $this->pseudo;
+        // Identifiant "officiel" Symfony = mail (robuste)
+        // Même si on autorise la connexion par pseudo, l'identifiant de référence reste l'email.
+        return (string)$this->mail;
     }
 }

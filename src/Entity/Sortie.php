@@ -51,19 +51,19 @@ class Sortie
     private ?string $motifAnnulation = null;
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]
-    #[ORM\JoinColumn(name: 'lieux_no_lieu', nullable: false)]
+    #[ORM\JoinColumn(name: 'lieux_no_lieu', referencedColumnName: 'no_lieu', nullable: false)]
     private ?Lieu $lieu = null;
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]
-    #[ORM\JoinColumn(name: 'etats_no_etat', nullable: false)]
+    #[ORM\JoinColumn(name: 'etats_no_etat', referencedColumnName: 'no_etat', nullable: false)]
     private ?Etat $etat = null;
 
     #[ORM\ManyToOne(inversedBy: 'sortiesOrganisees')]
-    #[ORM\JoinColumn(name: 'organisateur', nullable: false)]
+    #[ORM\JoinColumn(name: 'organisateur', referencedColumnName: 'no_participant', nullable: false)]
     private ?Participant $organisateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]
-    #[ORM\JoinColumn(name: 'sites_no_site', nullable: false)]
+    #[ORM\JoinColumn(name: 'sites_no_site', referencedColumnName: 'no_site', nullable: false)]
     private ?Site $site = null;
 
     /**
@@ -90,7 +90,6 @@ class Sortie
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -102,7 +101,6 @@ class Sortie
     public function setDateHeureDebut(\DateTimeInterface $dateHeureDebut): static
     {
         $this->dateHeureDebut = $dateHeureDebut;
-
         return $this;
     }
 
@@ -114,7 +112,6 @@ class Sortie
     public function setDuree(?int $duree): static
     {
         $this->duree = $duree;
-
         return $this;
     }
 
@@ -126,7 +123,6 @@ class Sortie
     public function setDateLimiteInscription(\DateTimeInterface $dateLimiteInscription): static
     {
         $this->dateLimiteInscription = $dateLimiteInscription;
-
         return $this;
     }
 
@@ -138,7 +134,6 @@ class Sortie
     public function setNbInscriptionsMax(int $nbInscriptionsMax): static
     {
         $this->nbInscriptionsMax = $nbInscriptionsMax;
-
         return $this;
     }
 
@@ -150,7 +145,6 @@ class Sortie
     public function setInfosSortie(?string $infosSortie): static
     {
         $this->infosSortie = $infosSortie;
-
         return $this;
     }
 
@@ -162,7 +156,6 @@ class Sortie
     public function setUrlPhoto(?string $urlPhoto): static
     {
         $this->urlPhoto = $urlPhoto;
-
         return $this;
     }
 
@@ -174,7 +167,6 @@ class Sortie
     public function setMotifAnnulation(?string $motifAnnulation): static
     {
         $this->motifAnnulation = $motifAnnulation;
-
         return $this;
     }
 
@@ -186,7 +178,6 @@ class Sortie
     public function setLieu(?Lieu $lieu): static
     {
         $this->lieu = $lieu;
-
         return $this;
     }
 
@@ -198,7 +189,6 @@ class Sortie
     public function setEtat(?Etat $etat): static
     {
         $this->etat = $etat;
-
         return $this;
     }
 
@@ -210,7 +200,6 @@ class Sortie
     public function setOrganisateur(?Participant $organisateur): static
     {
         $this->organisateur = $organisateur;
-
         return $this;
     }
 
@@ -222,7 +211,6 @@ class Sortie
     public function setSite(?Site $site): static
     {
         $this->site = $site;
-
         return $this;
     }
 
@@ -240,7 +228,6 @@ class Sortie
             $this->inscriptions->add($inscription);
             $inscription->setSortie($this);
         }
-
         return $this;
     }
 
@@ -251,21 +238,14 @@ class Sortie
                 $inscription->setSortie(null);
             }
         }
-
         return $this;
     }
 
-    /**
-     * Retourne le nombre d'inscrits à cette sortie
-     */
     public function getNbInscrits(): int
     {
         return $this->inscriptions->count();
     }
 
-    /**
-     * Vérifie si un participant est inscrit à cette sortie
-     */
     public function isParticipantInscrit(Participant $participant): bool
     {
         foreach ($this->inscriptions as $inscription) {

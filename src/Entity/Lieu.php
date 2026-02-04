@@ -30,7 +30,7 @@ class Lieu
     private ?string $longitude = null;
 
     #[ORM\ManyToOne(inversedBy: 'lieux')]
-    #[ORM\JoinColumn(name: 'villes_no_ville', nullable: false)]
+    #[ORM\JoinColumn(name: 'villes_no_ville', referencedColumnName: 'no_ville', nullable: false)]
     private ?Ville $ville = null;
 
     /**
@@ -57,7 +57,6 @@ class Lieu
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -69,7 +68,6 @@ class Lieu
     public function setRue(?string $rue): static
     {
         $this->rue = $rue;
-
         return $this;
     }
 
@@ -81,7 +79,6 @@ class Lieu
     public function setLatitude(?string $latitude): static
     {
         $this->latitude = $latitude;
-
         return $this;
     }
 
@@ -93,7 +90,6 @@ class Lieu
     public function setLongitude(?string $longitude): static
     {
         $this->longitude = $longitude;
-
         return $this;
     }
 
@@ -105,7 +101,6 @@ class Lieu
     public function setVille(?Ville $ville): static
     {
         $this->ville = $ville;
-
         return $this;
     }
 
@@ -132,28 +127,6 @@ class Lieu
         if ($this->sorties->removeElement($sortie)) {
             if ($sortie->getLieu() === $this) {
                 $sortie->setLieu(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function addSorty(Sortie $sorty): static
-    {
-        if (!$this->sorties->contains($sorty)) {
-            $this->sorties->add($sorty);
-            $sorty->setLieu($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSorty(Sortie $sorty): static
-    {
-        if ($this->sorties->removeElement($sorty)) {
-            // set the owning side to null (unless already changed)
-            if ($sorty->getLieu() === $this) {
-                $sorty->setLieu(null);
             }
         }
 
