@@ -16,28 +16,16 @@ class ParticipantRepository extends ServiceEntityRepository
         parent::__construct($registry, Participant::class);
     }
 
-    //    /**
-    //     * @return Participant[] Returns an array of Participant objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Participant
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * Trouve un participant par email (mail) OU par pseudo.
+     * Utilisé pour le login "email ou pseudo".
+     */
+    public function findOneByMailOrPseudo(string $identifier): ?Participant
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.mail = :id OR p.pseudo = :id')
+            ->setParameter('id', $identifier)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

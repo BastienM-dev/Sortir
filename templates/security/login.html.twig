@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="login-page">
+        <main class="login-main">
+            <form method="post" class="login-card">
+                {% if error %}
+                    <div class="login-alert">
+                        {{ error.messageKey|trans(error.messageData, 'security') }}
+                    </div>
+                {% endif %}
+                {% if app.user %}
+                    <div class="mb-3">
+                        Connecté en tant que {{ app.user.userIdentifier }},
+                        <a href="{{ logout_path() }}">Se déconnecter</a>
+                    </div>
+                {% endif %}
+
+                <h1 class="h3 mb-3 font-weight-normal">Se connecter</h1>
+
+                <div class="login-row">
+                    <label for="inputIdentifier" class="login-label">Identifiant</label>
+                    <input
+                            type="text"
+                            value="{{ last_username }}"
+                            name="identifier"
+                            id="inputIdentifier"
+                            class="login-input"
+                            autocomplete="username"
+                            required
+                            autofocus
+                    >
+                </div>
+
+                <div class="login-row">
+                    <label for="inputPassword" class="login-label">Mot de passe</label>
+                    <input
+                            type="password"
+                            name="password"
+                            id="inputPassword"
+                            class="login-input"
+                            autocomplete="current-password"
+                            required
+                    >
+                </div>
+
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                <div class="login-actions">
+                    <button class="login-btn" type="submit">Se connecter</button>
+
+                    <div class="login-options">
+                        <label class="remember">
+                            <input type="checkbox" name="_remember_me">
+                            <span>Se souvenir de moi</span>
+                        </label>
+
+                        <a class="forgot" href="#">Mot de passe oublié ?</a>
+                    </div>
+                </div>
+            </form>
+        </main>
+    </div>
+{% endblock %}
