@@ -9,6 +9,7 @@ use App\Entity\Participant;
 use App\Entity\Sortie;
 use App\Form\SortieType;
 use App\Repository\EtatRepository;
+use App\Repository\SiteRepository;
 use App\Repository\SortieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/sortie', name: 'sortie_')]
+//#[Route('/sortie', name: 'sortie_')] // pas de prefixe possible si sortie en index
 class SortieController extends AbstractController
 {
     // ==========================================
@@ -329,4 +330,90 @@ class SortieController extends AbstractController
             'sortie' => $sortie,
         ]);
     }
+    #[Route('/', name:'sortie_list', methods: ['GET'])]
+    public function list(SortieRepository $sortieRepository, SiteRepository $siteRepository, Request $request, ): Response
+    {
+
+        /** @var \App\Entity\Participant $user */
+        $user = $this->getUser();
+        $siteList = $siteRepository->findBy([], ['nom' => 'ASC']);
+
+
+        $siteId = $request->query->get('campus');
+        $searchText = $request->query->get('search');
+        $startDate = $request->query->get('date_from');
+        $endDate = $request->query->get('date_to');
+        $organisateur = $request->query->get('organisateur');
+        $inscrit = $request->query->get('inscrit');
+        $nonInscrit = $request->query->get('non_inscrit');
+        $terminees = $request->query->get('terminees');
+
+        $qb = $sortieRepository->createQueryBuilder('s')
+            ->andWhere('s.site = :siteId')
+            ->setParameter('siteId', $siteId);
+
+        if($startDate){
+            $startDate = new \DateTimeImmutable($startDate);
+            $qb->andWhere('s.dateHeureDebut > :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+        if($endDate){
+            $endDate = new \DateTimeImmutable($endDate);
+            $qb->andWhere('s.dateLimiteInscription < :endDate')->setParameter('endDate', $endDate);
+        }
+        if($organisateur){
+            $qb->andWhere('s.organisateur = :organisateur')
+                ->setParameter('organisateur', $organisateur);
+        }
+        if($inscrit){
+            $qb->andWhere(':user MEMBER OF s.inscriptions')
+                ->setParameter('user', $user);
+        }
+        if($nonInscrit){
+            $qb->andWhere(':user NOT MEMBER OF s.inscriptions')
+                ->setParameter('user', $user);
+        }
+        if ($searchText) {
+            $qb->andWhere('LOWER(s.nom) LIKE LOWER(:searchText)')
+                ->setParameter('searchText', '%' . $searchText . '%');
+        }
+        if ($terminees) {
+            $qb->innerJoin('s.etat', 'e')
+                ->andWhere('e.libelle = :etatTerminee')
+                ->setParameter('etatTerminee', 'Terminée');
+        }
+
+        $sortieList = $qb->getQuery()->getResult();
+
+
+
+
+
+
+
+
+//        if(!$siteList){
+//            throw $this->createNotFoundException('Pas de campus trouvés.');
+//        }else{
+//            if(!$user)
+//            {
+//                $site= $siteRepository->findFirstAlphabetical();
+//                $sortieList = $sortieRepository->findAllSortiesBySite($site);
+//            }else{
+//                $site = $user->getSite();
+//                $sortieList = $sortieRepository->findAllSortiesBySite($site);
+//            }
+//        }
+
+
+
+
+//        $sortieList = $sortieRepository->createQueryBuilder('s')
+//            ->order
+
+        return $this->render('sortie/list.html.twig',
+            ['sortieList' => $sortieList,
+                'siteList' => $siteList]);
+    }
+
 }
