@@ -6,6 +6,7 @@ use App\Repository\SiteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SiteRepository::class)]
 #[ORM\Table(name: 'sites')]
@@ -16,8 +17,10 @@ class Site
     #[ORM\Column(name: 'no_site', type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'nom_site', length: 30)]
-    private ?string $nom = null;
+    #[ORM\Column(name: 'nom_site', length: 30, nullable: false)]
+    #[Assert\NotBlank(message: 'Le nom du site est obligatoire')]
+    #[Assert\Length(max: 30)]
+    private string $nom;
 
     /**
      * @var Collection<int, Participant>
@@ -42,7 +45,7 @@ class Site
         return $this->id;
     }
 
-    public function getNom(): ?string
+    public function getNom(): string
     {
         return $this->nom;
     }

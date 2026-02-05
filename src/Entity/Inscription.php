@@ -12,53 +12,45 @@ class Inscription
 {
     #[ORM\Id]
     #[ORM\ManyToOne(inversedBy: 'inscriptions')]
-    #[ORM\JoinColumn(
-        name: 'participants_no_participant',
-        referencedColumnName: 'no_participant',
-        nullable: false
-    )]
-    private ?Participant $participant = null;
+    #[ORM\JoinColumn(name: 'participants_no_participant', referencedColumnName: 'no_participant', nullable: false)]
+    private Participant $participant;
 
     #[ORM\Id]
     #[ORM\ManyToOne(inversedBy: 'inscriptions')]
-    #[ORM\JoinColumn(
-        name: 'sorties_no_sortie',
-        referencedColumnName: 'no_sortie',
-        nullable: false
-    )]
-    private ?Sortie $sortie = null;
+    #[ORM\JoinColumn(name: 'sorties_no_sortie', referencedColumnName: 'no_sortie', nullable: false)]
+    private Sortie $sortie;
 
-    #[ORM\Column(name: 'date_inscription', type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $dateInscription = null;
+    #[ORM\Column(name: 'date_inscription', type: Types::DATETIME_MUTABLE, nullable: false)]
+    private \DateTimeInterface $dateInscription;
 
     public function __construct()
     {
         $this->dateInscription = new \DateTime();
     }
 
-    public function getParticipant(): ?Participant
+    public function getParticipant(): Participant
     {
         return $this->participant;
     }
 
-    public function setParticipant(?Participant $participant): static
+    public function setParticipant(Participant $participant): static
     {
         $this->participant = $participant;
         return $this;
     }
 
-    public function getSortie(): ?Sortie
+    public function getSortie(): Sortie
     {
         return $this->sortie;
     }
 
-    public function setSortie(?Sortie $sortie): static
+    public function setSortie(Sortie $sortie): static
     {
         $this->sortie = $sortie;
         return $this;
     }
 
-    public function getDateInscription(): ?\DateTimeInterface
+    public function getDateInscription(): \DateTimeInterface
     {
         return $this->dateInscription;
     }

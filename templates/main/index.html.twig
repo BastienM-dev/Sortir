@@ -3,5 +3,70 @@
 {% block title %}Accueil{% endblock %}
 
 {% block body %}
-    <p>Hello!</p>
+    <h1>Liste des sorties</h1>
+
+    {% for message in app.flashes('success') %}
+        <div style="padding:10px; margin:10px 0; border:1px solid #2ecc71;">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div style="padding:10px; margin:10px 0; border:1px solid #e74c3c;">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% if sorties is not defined or sorties is empty %}
+        <p>Aucune sortie pour le moment.</p>
+    {% else %}
+        <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse:collapse;">
+            <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Date</th>
+                <th>Organisateur</th>
+                <th>État</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for sortie in sorties %}
+                <tr>
+                    <td>{{ sortie.nom }}</td>
+                    <td>
+                        {% if sortie.dateHeureDebut %}
+                            {{ sortie.dateHeureDebut|date('d/m/Y H:i') }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if sortie.organisateur %}
+                            <a href="{{ path('participant_show', { id: sortie.organisateur.id }) }}">
+                                {{ sortie.organisateur.pseudo }}
+                            </a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if sortie.etat %}
+                            {{ sortie.etat.libelle }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {# Bouton Modifier uniquement si connecté + organisateur + En création #}
+                        {% if app.user
+                            and sortie.organisateur
+                            and sortie.organisateur.id == app.user.id
+                            and sortie.etat
+                            and sortie.etat.libelle == 'En création'
+                        %}
+                            <a href="{{ path('sortie_edit', { id: sortie.id }) }}">
+                                Modifier
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 {% endblock %}
