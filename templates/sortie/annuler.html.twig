@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Annuler une sortie{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1>Annuler la sortie "{{ sortie.nom }}"</h1>
+
+        <div class="alert alert-warning" role="alert">
+            <strong>Attention !</strong> Cette action est irréversible. La sortie sera marquée comme annulée.
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Informations de la sortie</h5>
+                <ul>
+                    <li><strong>Nom :</strong> {{ sortie.nom }}</li>
+                    <li><strong>Date :</strong> {{ sortie.dateHeureDebut|date('d/m/Y à H:i') }}</li>
+                    <li><strong>Lieu :</strong> {{ sortie.lieu.nom }}</li>
+                    <li><strong>Participants inscrits :</strong> {{ sortie.nbInscrits }} / {{ sortie.nbInscriptionsMax }}</li>
+                </ul>
+
+                <form method="post" action="{{ path('sortie_annuler', {id: sortie.id}) }}">
+                    <div class="mb-3">
+                        <label for="motif" class="form-label">Motif d'annulation <span class="text-danger">*</span></label>
+                        <textarea
+                                class="form-control"
+                                id="motif"
+                                name="motif"
+                                rows="4"
+                                required
+                                placeholder="Expliquez pourquoi vous annulez cette sortie..."
+                        ></textarea>
+                        <small class="form-text text-muted">Ce motif sera visible par tous les participants inscrits.</small>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('main_index') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Retour
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-x-circle"></i> Confirmer l'annulation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
