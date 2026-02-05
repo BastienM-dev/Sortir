@@ -285,3 +285,5 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return (string)$this->mail;
     }
 }
+
+/** j'ai écris un commentaire pour faire un push hahahhah */

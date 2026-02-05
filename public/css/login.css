@@ -1,0 +1,131 @@
+.login-page {
+    min-height: 100vh;
+    background: #fff;
+}
+
+/* Bandeau haut */
+.login-header {
+    padding: 28px 32px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo-box {
+    width: 78px;
+    height: 78px;
+    border: 2px solid #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-text {
+    font-size: 14px;
+}
+
+.brand-name {
+    font-size: 34px;
+    font-weight: 700;
+}
+
+/* Zone centrale */
+.login-main {
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+}
+
+.login-card {
+    width: 520px;
+    max-width: 95vw;
+    padding: 16px 8px;
+}
+
+.login-alert {
+    border: 1px solid #c00;
+    padding: 10px 12px;
+    margin-bottom: 18px;
+    border-radius: 6px;
+}
+
+/* Lignes label + input */
+.login-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    align-items: center;
+    gap: 16px;
+    margin: 18px 0;
+}
+
+.login-label {
+    font-size: 18px;
+}
+
+.login-input {
+    height: 38px;
+    border: 2px solid #111;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 16px;
+}
+
+/* Bas : bouton + options */
+.login-actions {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 22px;
+    align-items: start;
+    margin-top: 26px;
+}
+
+.login-btn {
+    height: 44px;
+    border: 2px solid #111;
+    background: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+.login-btn:hover {
+    background-color: #111;
+    color: #fff;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.login-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 6px;
+}
+
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.forgot {
+    color: #1a56db;
+    text-decoration: underline;
+    font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+    .login-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .login-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .login-btn {
+        width: 100%;
+    }
+}
