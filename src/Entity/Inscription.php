@@ -36,7 +36,6 @@ class Inscription
     public function setParticipant(Participant $participant): static
     {
         $this->participant = $participant;
-
         return $this;
     }
 
@@ -48,7 +47,6 @@ class Inscription
     public function setSortie(Sortie $sortie): static
     {
         $this->sortie = $sortie;
-
         return $this;
     }
 
@@ -60,7 +58,6 @@ class Inscription
     public function setDateInscription(\DateTimeInterface $dateInscription): static
     {
         $this->dateInscription = $dateInscription;
-
         return $this;
     }
 }

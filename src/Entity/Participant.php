@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'participants_pseudo_uk', columns: ['pseudo'])]
 #[UniqueEntity(fields: ['pseudo'], message: 'Ce pseudo est déjà utilisé')]
 #[UniqueEntity(fields: ['mail'], message: 'Cet email est déjà utilisé')]
+
 class Participant implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -258,7 +259,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = ['ROLE_USER'];
-        
+
         if ($this->administrateur) {
             $roles[] = 'ROLE_ADMIN';
         }
@@ -279,6 +280,8 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return $this->pseudo;
+        // Identifiant "officiel" Symfony = mail (robuste)
+        // Même si on autorise la connexion par pseudo, l'identifiant de référence reste l'email.
+        return (string)$this->mail;
     }
 }

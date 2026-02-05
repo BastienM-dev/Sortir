@@ -14,7 +14,7 @@ class Site
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'no_site')]
+    #[ORM\Column(name: 'no_site', type: 'integer')]
     private ?int $id = null;
 
     #[ORM\Column(name: 'nom_site', length: 30, nullable: false)]
@@ -53,7 +53,6 @@ class Site
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
