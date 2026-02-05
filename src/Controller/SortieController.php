@@ -9,6 +9,7 @@ use App\Entity\Participant;
 use App\Entity\Sortie;
 use App\Form\SortieType;
 use App\Repository\EtatRepository;
+use App\Repository\SiteRepository;
 use App\Repository\SortieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,14 +17,84 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/sortie', name: 'sortie_')]
 class SortieController extends AbstractController
 {
+    public function __construct(private EntityManagerInterface $em)
+    {
+    }
+
+    // ==========================================
+    // PARTIE KEVIN - Liste avec filtres
+    // ==========================================
+
+    #[Route('/', name: 'sortie_list', methods: ['GET'])]
+    public function list(
+        SortieRepository $sortieRepository,
+        SiteRepository $siteRepository,
+        Request $request
+    ): Response {
+        /** @var Participant $user */
+        $user = $this->getUser();
+
+        $siteList = $siteRepository->findBy([], ['nom' => 'ASC']);
+        $siteId = $request->query->get('campus');
+        $searchText = $request->query->get('search');
+        $startDate = $request->query->get('date_from');
+        $endDate = $request->query->get('date_to');
+        $organisateur = $request->query->get('organisateur');
+        $inscrit = $request->query->get('inscrit');
+        $nonInscrit = $request->query->get('non_inscrit');
+        $terminees = $request->query->get('terminees');
+
+        $qb = $sortieRepository->createQueryBuilder('s');
+
+        if ($siteId) {
+            $qb->andWhere('s.site = :siteId')
+                ->setParameter('siteId', $siteId);
+        }
+
+        if ($startDate) {
+            $startDate = new \DateTimeImmutable($startDate);
+            $qb->andWhere('s.dateHeureDebut > :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+
+        if ($endDate) {
+            $endDate = new \DateTimeImmutable($endDate);
+            $qb->andWhere('s.dateLimiteInscription < :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        if ($organisateur) {
+            $qb->andWhere('s.organisateur = :user')
+                ->setParameter('user', $user);
+        }
+
+        if ($inscrit) {
+            $qb->join('s.inscriptions', 'i')
+                ->andWhere('i.participant = :user')
+                ->setParameter('user', $user);
+        }
+
+        if ($nonInscrit) {
+            $qb->leftJoin('s.inscriptions', 'i2', 'WITH', 'i2.participant = :user')
+                ->andWhere('i2.id IS NULL')
+                ->setParameter('user', $user);
+        }
+
+        $sortieList = $qb->getQuery()->getResult();
+
+        return $this->render('sortie/list.html.twig', [
+            'sortieList' => $sortieList,
+            'siteList' => $siteList
+        ]);
+    }
+
     // ==========================================
     // PARTIE JUSTINE - Création/Modification
     // ==========================================
 
-    #[Route('/creer', name: 'create', methods: ['GET', 'POST'])]
+    #[Route('/sortie/creer', name: 'sortie_create', methods: ['GET', 'POST'])]
     public function create(
         Request $request,
         EntityManagerInterface $em,
@@ -67,7 +138,7 @@ class SortieController extends AbstractController
             $em->persist($sortie);
             $em->flush();
 
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         return $this->render('sortie/create.html.twig', [
@@ -75,7 +146,7 @@ class SortieController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/modifier', name: 'edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/sortie/{id}/modifier', name: 'sortie_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function edit(
         Sortie $sortie,
         Request $request,
@@ -106,7 +177,7 @@ class SortieController extends AbstractController
                 'error',
                 "Impossible de modifier : la sortie n'est plus en création."
             );
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         $form = $this->createForm(SortieType::class, $sortie);
@@ -132,7 +203,7 @@ class SortieController extends AbstractController
 
             $em->flush();
 
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         return $this->render('sortie/edit.html.twig', [
@@ -145,58 +216,47 @@ class SortieController extends AbstractController
     // PARTIE BASTIEN - Inscriptions/Annulation
     // ==========================================
 
-    /**
-     * Inscription à une sortie
-     */
-    #[Route('/{id}/inscrire', name: 'inscrire', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[Route('/sortie/{id}/inscrire', name: 'sortie_inscrire', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function inscrire(
         Sortie $sortie,
         EntityManagerInterface $em,
         EtatRepository $etatRepository
     ): Response {
-        // 1. Vérifier que l'utilisateur est connecté
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $participant = $this->getUser();
 
-        // 2. RÈGLE : L'organisateur ne peut pas s'inscrire à sa propre sortie
         if ($sortie->getOrganisateur() === $participant) {
             $this->addFlash('error', 'Vous ne pouvez pas vous inscrire à votre propre sortie.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
-        // 3. RÈGLE : La sortie doit être en état "Ouverte"
         if ($sortie->getEtat()->getLibelle() !== 'Ouverte') {
             $this->addFlash('error', 'Cette sortie n\'est plus ouverte aux inscriptions.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
-        // 4. RÈGLE : La date limite d'inscription ne doit pas être dépassée
         $now = new \DateTimeImmutable();
         if ($now > $sortie->getDateLimiteInscription()) {
             $this->addFlash('error', 'La date limite d\'inscription est dépassée.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
-        // 5. RÈGLE : Il doit rester des places disponibles
         if ($sortie->getNbInscrits() >= $sortie->getNbInscriptionsMax()) {
             $this->addFlash('error', 'Il n\'y a plus de place disponible pour cette sortie.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
-        // 6. RÈGLE : Le participant ne doit pas déjà être inscrit
         if ($sortie->isParticipantInscrit($participant)) {
             $this->addFlash('warning', 'Vous êtes déjà inscrit à cette sortie.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
-        // 7. Créer l'inscription
         $inscription = new Inscription();
         $inscription->setParticipant($participant);
         $inscription->setSortie($sortie);
 
         $em->persist($inscription);
 
-        // 8. Vérifier si la sortie doit passer en état "Clôturée"
         if ($sortie->getNbInscrits() + 1 >= $sortie->getNbInscriptionsMax()) {
             $etatCloturee = $etatRepository->findOneBy(['libelle' => 'Clôturée']);
             if ($etatCloturee) {
@@ -208,36 +268,29 @@ class SortieController extends AbstractController
 
         $this->addFlash('success', 'Vous êtes maintenant inscrit à la sortie "' . $sortie->getNom() . '".');
 
-        return $this->redirectToRoute('main_index');
+        return $this->redirectToRoute('sortie_list');
     }
 
-    /**
-     * Désistement d'une sortie
-     */
-    #[Route('/{id}/desister', name: 'desister', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[Route('/sortie/{id}/desister', name: 'sortie_desister', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function desister(
         Sortie $sortie,
         EntityManagerInterface $em,
         EtatRepository $etatRepository
     ): Response {
-        // 1. Vérifier que l'utilisateur est connecté
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $participant = $this->getUser();
 
-        // 2. RÈGLE : Le participant doit être inscrit
         if (!$sortie->isParticipantInscrit($participant)) {
             $this->addFlash('error', 'Vous n\'êtes pas inscrit à cette sortie.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
-        // 3. RÈGLE : La sortie ne doit pas avoir débuté
         $now = new \DateTimeImmutable();
         if ($now >= $sortie->getDateHeureDebut()) {
             $this->addFlash('error', 'Impossible de se désister, la sortie a déjà commencé.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
-        // 4. Trouver et supprimer l'inscription
         foreach ($sortie->getInscriptions() as $inscription) {
             if ($inscription->getParticipant() === $participant) {
                 $sortie->removeInscription($inscription);
@@ -246,7 +299,6 @@ class SortieController extends AbstractController
             }
         }
 
-        // 5. Vérifier si la sortie doit repasser en état "Ouverte"
         if ($sortie->getEtat()->getLibelle() === 'Clôturée') {
             if ($sortie->getNbInscrits() - 1 < $sortie->getNbInscriptionsMax()
                 && $now <= $sortie->getDateLimiteInscription()) {
@@ -261,44 +313,36 @@ class SortieController extends AbstractController
 
         $this->addFlash('success', 'Vous vous êtes désisté de la sortie "' . $sortie->getNom() . '".');
 
-        return $this->redirectToRoute('main_index');
+        return $this->redirectToRoute('sortie_list');
     }
 
-    /**
-     * Annuler une sortie
-     */
-    #[Route('/{id}/annuler', name: 'annuler', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/sortie/{id}/annuler', name: 'sortie_annuler', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function annuler(
         Sortie $sortie,
         EntityManagerInterface $em,
         EtatRepository $etatRepository,
         Request $request
     ): Response {
-        // 1. Vérifier que l'utilisateur est connecté
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $participant = $this->getUser();
 
-        // 2. RÈGLE : Seul l'organisateur peut annuler
         if ($sortie->getOrganisateur() !== $participant) {
             $this->addFlash('error', 'Seul l\'organisateur peut annuler cette sortie.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
-        // 3. RÈGLE : La sortie doit être publiée (Ouverte ou Clôturée)
         $etatActuel = $sortie->getEtat()->getLibelle();
         if ($etatActuel !== 'Ouverte' && $etatActuel !== 'Clôturée') {
             $this->addFlash('error', 'Cette sortie ne peut pas être annulée dans son état actuel.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
-        // 4. RÈGLE : La sortie ne doit pas avoir commencé
         $now = new \DateTimeImmutable();
         if ($now >= $sortie->getDateHeureDebut()) {
             $this->addFlash('error', 'Impossible d\'annuler une sortie qui a déjà commencé.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
-        // 5. Si POST : traiter l'annulation
         if ($request->isMethod('POST')) {
             $motif = $request->request->get('motif', '');
 
@@ -321,10 +365,9 @@ class SortieController extends AbstractController
                 $this->addFlash('error', 'Erreur : état "Annulée" introuvable.');
             }
 
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
-        // Si GET : afficher le formulaire de confirmation
         return $this->render('sortie/annuler.html.twig', [
             'sortie' => $sortie,
         ]);
