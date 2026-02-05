@@ -14,3 +14,8 @@
 /assets/vendor/
 ###< symfony/asset-mapper ###
 .DS_Store
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
