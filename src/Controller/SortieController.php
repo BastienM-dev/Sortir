@@ -416,4 +416,15 @@ class SortieController extends AbstractController
                 'siteList' => $siteList]);
     }
 
+    #[Route('/{id}/detail', name: 'sortie_detail', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function detail(Sortie $sortie, SortieRepository $sortieRepository): Response
+    {
+        $participants = $sortie->getInscriptions()->map(fn($inscription) => $inscription->getParticipant());
+
+        return $this->render('sortie/detail.html.twig', [
+            'sortie' => $sortie,
+            'participants' => $participants,
+        ]);
+    }
+
 }
