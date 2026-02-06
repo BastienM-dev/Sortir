@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail de la sortie{% endblock %}
+
+{% block body %}
+    <h1>Détail de la sortie : {{ sortie.nom }}</h1>
+
+    <p><strong>Description:</strong> {{ sortie.infosSortie }}</p>
+    <p><strong>Date de début:</strong> {{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</p>
+    <p><strong>Date limite d'inscription:</strong> {{ sortie.dateLimiteInscription|date('d/m/Y H:i') }}</p>
+    <p><strong>Nombre d'inscrits:</strong> {{ sortie.inscriptions|length }} / {{ sortie.nbInscriptionsMax }}</p>
+
+    <h2>Participants inscrits</h2>
+    <ul>
+        {% for participant in participants %}
+            <li>{{ participant.prenom }} {{ participant.nom }}</li>
+        {% else %}
+            <li>Aucun participant inscrit.</li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}

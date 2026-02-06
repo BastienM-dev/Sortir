@@ -25,7 +25,7 @@ security:
             logout:
                 path: app_logout
                 # target: main_index   # optionnel
-
+                # target: main_index   # optionnel: où aller après logout
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 604800
@@ -34,8 +34,10 @@ security:
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/logout, roles: PUBLIC_ACCESS }
+        - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: ROLE_USER }
 
+# Environment-specific configuration (if needed)
 when@test:
     security:
         password_hashers:
