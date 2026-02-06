@@ -59,11 +59,14 @@ class AdminController extends AbstractController
         return $this->render('admin/villes.html.twig', ['villes' => $villes]);
     }
 
+
     #[Route('/administration/utilisateurs', name: 'admin_utilisateurs')]
     public function utilisateurs(ParticipantRepository $participantRepository): Response
     {
         $participants = $participantRepository->findBy([], ['nom' => 'ASC']);
         return $this->render('admin/utilisateurs.html.twig', ['participants' => $participants]);
     }
+
+
 
 }
