@@ -16,6 +16,17 @@ class SiteRepository extends ServiceEntityRepository
         parent::__construct($registry, Site::class);
     }
 
+    public function findFirstAlphabetical(): ?Site
+    {
+        return $this->createQueryBuilder('s')
+            ->orderBy('s.nom', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+
+    }
+
     //    /**
     //     * @return Site[] Returns an array of Site objects
     //     */

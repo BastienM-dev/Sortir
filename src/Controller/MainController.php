@@ -11,14 +11,12 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class MainController extends AbstractController
 {
-    #[Route('/', name: 'main_index')]
+    #[Route('/index', name: 'main_index')]
     public function index(SortieRepository $sortieRepository): Response
     {
-        // Récupération de toutes les sorties
-        $sorties = $sortieRepository->findAll();
 
-        return $this->render('main/index.html.twig', [
-            'sorties' => $sorties,
-        ]);
+        //redirection vers la vraie page d'accueil pour ne pas casser les redirections vers main_index
+        return $this->redirectToRoute('sortie_list');
+
     }
 }
