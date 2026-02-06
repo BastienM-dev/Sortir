@@ -35,58 +35,106 @@ class SortieController extends AbstractController
     ): Response {
         /** @var Participant $user */
         $user = $this->getUser();
-
         $siteList = $siteRepository->findBy([], ['nom' => 'ASC']);
-        $siteId = $request->query->get('campus');
-        $searchText = $request->query->get('search');
-        $startDate = $request->query->get('date_from');
-        $endDate = $request->query->get('date_to');
-        $organisateur = $request->query->get('organisateur');
-        $inscrit = $request->query->get('inscrit');
-        $nonInscrit = $request->query->get('non_inscrit');
-        $terminees = $request->query->get('terminees');
 
-        $qb = $sortieRepository->createQueryBuilder('s');
+        if (!$siteList) {
+            throw $this->createNotFoundException('Pas de campus trouvés.');
+        }
 
-        if ($siteId) {
-            $qb->andWhere('s.site = :siteId')
+        if (!$user) {
+            $site = $siteRepository->findFirstAlphabetical();
+        } else {
+            $site = $user->getSite();
+        }
+
+        if ($request->query->count() === 0) {
+            $sortieList = $sortieRepository->findAllSortiesBySite($site);
+        } else {
+            $siteId = $request->query->get('campus');
+            $searchText = $request->query->get('search');
+            $startDate = $request->query->get('date_from');
+            $endDate = $request->query->get('date_to');
+            $organisateur = $request->query->get('organisateur');
+            $inscrit = $request->query->get('inscrit');
+            $nonInscrit = $request->query->get('non_inscrit');
+            $terminees = $request->query->get('terminees');
+
+            $qb = $sortieRepository->createQueryBuilder('s')
+                ->innerJoin('s.etat', 'e')
+                ->andWhere('s.site = :siteId')
                 ->setParameter('siteId', $siteId);
-        }
 
-        if ($startDate) {
-            $startDate = new \DateTimeImmutable($startDate);
-            $qb->andWhere('s.dateHeureDebut > :startDate')
-                ->setParameter('startDate', $startDate);
-        }
+            if ($user) {
+                $qb->orWhere(
+                    $qb->expr()->andX(
+                        $qb->expr()->eq('e.libelle', ':etatCreation'),
+                        $qb->expr()->eq('s.organisateur', ':organisateur')
+                    )
+                )
+                    ->setParameter('etatCreation', 'En création')
+                    ->setParameter('organisateur', $user);
+            }
 
-        if ($endDate) {
-            $endDate = new \DateTimeImmutable($endDate);
-            $qb->andWhere('s.dateLimiteInscription < :endDate')
-                ->setParameter('endDate', $endDate);
-        }
+            $etatsPubliques = ['Ouverte', 'Clôturée', 'En cours', 'Terminée', 'Annulée', 'Historisée'];
+            $qb->andWhere('e.libelle IN (:ETATS)')
+                ->setParameter('ETATS', $etatsPubliques);
 
-        if ($organisateur) {
-            $qb->andWhere('s.organisateur = :user')
-                ->setParameter('user', $user);
-        }
+            if ($startDate) {
+                $startDate = \DateTimeImmutable::createFromFormat('Y-m-d', $startDate);
+                $qb->andWhere('s.dateHeureDebut > :startDate')
+                    ->setParameter('startDate', $startDate);
+            }
 
-        if ($inscrit) {
-            $qb->join('s.inscriptions', 'i')
-                ->andWhere('i.participant = :user')
-                ->setParameter('user', $user);
-        }
+            if ($endDate) {
+                $endDate = \DateTimeImmutable::createFromFormat('Y-m-d', $endDate);
+                $qb->andWhere('s.dateLimiteInscription < :endDate')
+                    ->setParameter('endDate', $endDate);
+            }
 
-        if ($nonInscrit) {
-            $qb->leftJoin('s.inscriptions', 'i2', 'WITH', 'i2.participant = :user')
-                ->andWhere('i2.id IS NULL')
-                ->setParameter('user', $user);
-        }
+            if ($organisateur) {
+                $qb->andWhere('s.organisateur = :organisateur')
+                    ->setParameter('organisateur', $user);
+            }
 
-        $sortieList = $qb->getQuery()->getResult();
+            if ($inscrit) {
+                $qb->andWhere(':user MEMBER OF s.inscriptions')
+                    ->setParameter('user', $user);
+            }
+
+            if ($nonInscrit) {
+                $qb->andWhere(':user NOT MEMBER OF s.inscriptions')
+                    ->setParameter('user', $user);
+            }
+
+            if ($searchText) {
+                $qb->andWhere('LOWER(s.nom) LIKE LOWER(:searchText)')
+                    ->setParameter('searchText', '%' . $searchText . '%');
+            }
+
+            if ($terminees) {
+                $qb->andWhere('e.libelle = :etatTerminee')
+                    ->setParameter('etatTerminee', 'Terminée');
+            }
+
+            $sortieList = $qb->getQuery()->getResult();
+        }
 
         return $this->render('sortie/list.html.twig', [
             'sortieList' => $sortieList,
-            'siteList' => $siteList
+            'siteList' => $siteList,
+            'user' => $user,
+            'site' => $site,
+        ]);
+    }
+
+    #[Route('/{id}/detail', name: 'sortie_detail', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function detail(Sortie $sortie): Response
+    {
+        $participants = $sortie->getInscriptions()->map(fn($inscription) => $inscription->getParticipant());
+
+        return $this->render('sortie/detail.html.twig', [
+            'sortie' => $sortie,
+            'participants' => $participants,
         ]);
     }
 
@@ -119,7 +167,7 @@ class SortieController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $etatEnCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
-            $etatOuverte    = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
+            $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
 
             if (!$etatEnCreation || !$etatOuverte) {
                 throw $this->createNotFoundException(
@@ -185,7 +233,7 @@ class SortieController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $etatEnCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
-            $etatOuverte    = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
+            $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
 
             if (!$etatEnCreation || !$etatOuverte) {
                 throw $this->createNotFoundException(
