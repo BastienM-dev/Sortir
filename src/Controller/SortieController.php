@@ -341,6 +341,7 @@ class SortieController extends AbstractController
         $user = $this->getUser();
         $siteList = $siteRepository->findBy([], ['nom' => 'ASC']);
 
+
         if(!$siteList) {
             throw $this->createNotFoundException('Pas de campus trouvés.');
         }
@@ -421,11 +422,13 @@ class SortieController extends AbstractController
         }
 
 
+
         return $this->render('sortie/list.html.twig',
             ['sortieList' => $sortieList,
                 'siteList' => $siteList,
                 'user' => $user,
-                'site' => $site,]);
+                'site' => $site,
+                ]);
     }
 
 

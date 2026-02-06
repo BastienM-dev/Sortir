@@ -3,20 +3,44 @@
 {% block title %}Détail de la sortie{% endblock %}
 
 {% block body %}
-    <h1>Détail de la sortie : {{ sortie.nom }}</h1>
+    <h1>Détails de la sortie</h1>
+    <div>
+        <p><strong>Nom de la sortie : </strong> {{ sortie.nom }}</p>
+        <p><strong>Description : </strong> {{ sortie.infosSortie }}</p>
+        <p><strong>Date et heure de la sortie : </strong> {{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</p>
+        <p><strong>Date limite d'inscription : </strong> {{ sortie.dateLimiteInscription|date('d/m/Y H:i') }}</p>
+        <p><strong>Nombre d'inscrits : </strong> {{ sortie.inscriptions|length }} / {{ sortie.nbInscriptionsMax }}</p>
+        <p><strong>Durée (en minutes) : </strong> {{ sortie.duree }}</p>
+    </div>
 
-    <p><strong>Description:</strong> {{ sortie.infosSortie }}</p>
-    <p><strong>Date de début:</strong> {{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</p>
-    <p><strong>Date limite d'inscription:</strong> {{ sortie.dateLimiteInscription|date('d/m/Y H:i') }}</p>
-    <p><strong>Nombre d'inscrits:</strong> {{ sortie.inscriptions|length }} / {{ sortie.nbInscriptionsMax }}</p>
+    <div>
+        <p><strong>Campus : </strong> {{ sortie.site.nom }}</p>
+        <p><strong>Ville : </strong> {{ sortie.lieu.ville.nom }}</p>
+        <p><strong>Lieu : </strong> {{ sortie.lieu.nom }}</p>
+        <p><strong>Rue : </strong> {{ sortie.lieu.rue }}</p>
+        <p><strong>Code postal : </strong> {{ sortie.lieu.ville.codePostal }}</p>
+        <p><strong>Latitude / Longitude : </strong> {{ sortie.lieu.latitude }} / {{ sortie.lieu.longitude }}</p>
+    </div>
 
-    <h2>Participants inscrits</h2>
-    <ul>
-        {% for participant in participants %}
-            <li>{{ participant.prenom }} {{ participant.nom }}</li>
-        {% else %}
-            <li>Aucun participant inscrit.</li>
-        {% endfor %}
-    </ul>
+    <p><strong>Description et infos : </strong> {{ sortie.infosSortie }}</p>
+
+    <h3>Participants inscrits</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Pseudo</th>
+                <th>Nom</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {% for participant in participants %}
+                    <td>{{ participant.prenom }} {{ participant.nom }}</td>
+                {% else %}
+                    <td>Aucun participant inscrit.</td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
 
 {% endblock %}
