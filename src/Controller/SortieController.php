@@ -24,7 +24,7 @@ class SortieController extends AbstractController
     // PARTIE JUSTINE - Création/Modification
     // ==========================================
 
-    #[Route('/creer', name: 'sortie_create', methods: ['GET', 'POST'])]
+    #[Route('/sortie/creer', name: 'sortie_create', methods: ['GET', 'POST'])]
     public function create(
         Request $request,
         EntityManagerInterface $em,
@@ -49,7 +49,7 @@ class SortieController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $etatEnCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
-            $etatOuverte    = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
+            $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
 
             if (!$etatEnCreation || !$etatOuverte) {
                 throw $this->createNotFoundException(
@@ -68,7 +68,7 @@ class SortieController extends AbstractController
             $em->persist($sortie);
             $em->flush();
 
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_index');
         }
 
         return $this->render('sortie/create.html.twig', [
@@ -107,7 +107,7 @@ class SortieController extends AbstractController
                 'error',
                 "Impossible de modifier : la sortie n'est plus en création."
             );
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_index');
         }
 
         $form = $this->createForm(SortieType::class, $sortie);
@@ -133,7 +133,7 @@ class SortieController extends AbstractController
 
             $em->flush();
 
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         return $this->render('sortie/edit.html.twig', [
@@ -162,32 +162,32 @@ class SortieController extends AbstractController
         // 2. RÈGLE : L'organisateur ne peut pas s'inscrire à sa propre sortie
         if ($sortie->getOrganisateur() === $participant) {
             $this->addFlash('error', 'Vous ne pouvez pas vous inscrire à votre propre sortie.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         // 3. RÈGLE : La sortie doit être en état "Ouverte"
         if ($sortie->getEtat()->getLibelle() !== 'Ouverte') {
             $this->addFlash('error', 'Cette sortie n\'est plus ouverte aux inscriptions.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         // 4. RÈGLE : La date limite d'inscription ne doit pas être dépassée
         $now = new \DateTimeImmutable();
         if ($now > $sortie->getDateLimiteInscription()) {
             $this->addFlash('error', 'La date limite d\'inscription est dépassée.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         // 5. RÈGLE : Il doit rester des places disponibles
         if ($sortie->getNbInscrits() >= $sortie->getNbInscriptionsMax()) {
             $this->addFlash('error', 'Il n\'y a plus de place disponible pour cette sortie.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         // 6. RÈGLE : Le participant ne doit pas déjà être inscrit
         if ($sortie->isParticipantInscrit($participant)) {
             $this->addFlash('warning', 'Vous êtes déjà inscrit à cette sortie.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         // 7. Créer l'inscription
@@ -209,7 +209,7 @@ class SortieController extends AbstractController
 
         $this->addFlash('success', 'Vous êtes maintenant inscrit à la sortie "' . $sortie->getNom() . '".');
 
-        return $this->redirectToRoute('main_index');
+        return $this->redirectToRoute('sortie_list');
     }
 
     /**
@@ -228,14 +228,14 @@ class SortieController extends AbstractController
         // 2. RÈGLE : Le participant doit être inscrit
         if (!$sortie->isParticipantInscrit($participant)) {
             $this->addFlash('error', 'Vous n\'êtes pas inscrit à cette sortie.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         // 3. RÈGLE : La sortie ne doit pas avoir débuté
         $now = new \DateTimeImmutable();
         if ($now >= $sortie->getDateHeureDebut()) {
             $this->addFlash('error', 'Impossible de se désister, la sortie a déjà commencé.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         // 4. Trouver et supprimer l'inscription
@@ -262,7 +262,7 @@ class SortieController extends AbstractController
 
         $this->addFlash('success', 'Vous vous êtes désisté de la sortie "' . $sortie->getNom() . '".');
 
-        return $this->redirectToRoute('main_index');
+        return $this->redirectToRoute('sortie_list');
     }
 
     /**
@@ -282,21 +282,21 @@ class SortieController extends AbstractController
         // 2. RÈGLE : Seul l'organisateur peut annuler
         if ($sortie->getOrganisateur() !== $participant) {
             $this->addFlash('error', 'Seul l\'organisateur peut annuler cette sortie.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         // 3. RÈGLE : La sortie doit être publiée (Ouverte ou Clôturée)
         $etatActuel = $sortie->getEtat()->getLibelle();
         if ($etatActuel !== 'Ouverte' && $etatActuel !== 'Clôturée') {
             $this->addFlash('error', 'Cette sortie ne peut pas être annulée dans son état actuel.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         // 4. RÈGLE : La sortie ne doit pas avoir commencé
         $now = new \DateTimeImmutable();
         if ($now >= $sortie->getDateHeureDebut()) {
             $this->addFlash('error', 'Impossible d\'annuler une sortie qui a déjà commencé.');
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         // 5. Si POST : traiter l'annulation
@@ -322,7 +322,7 @@ class SortieController extends AbstractController
                 $this->addFlash('error', 'Erreur : état "Annulée" introuvable.');
             }
 
-            return $this->redirectToRoute('main_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         // Si GET : afficher le formulaire de confirmation

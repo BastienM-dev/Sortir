@@ -90,11 +90,36 @@ Sorties | {{ parent() }}
                 <td>
                     <a href="{{ path('sortie_detail', { id: sortie.id }) }}">Afficher</a
                     {% if app.user
+                        and sortie.etat.libelle == 'Ouverte'
+                        and sortie.inscriptions|filter(i => i.participant == app.user)|length == 0
+                        and sortie.organisateur != app.user %}
+                        <form method="post" action="{{ path('sortie_inscrire', {id: sortie.id}) }}" style="display:inline;">
+                            <button type="submit">S'inscrire</button>
+                        </form>
+                    {% endif %}
+
+                    {# Se désister (si inscrit) #}
+                    {% if app.user and sortie.inscriptions|filter(i => i.participant == app.user)|length > 0 %}
+                        <form method="post" action="{{ path('sortie_desister', {id: sortie.id}) }}" style="display:inline;">
+                            <button type="submit">Se désister</button>
+                        </form>
+                    {% endif %}
+
+                    {# Modifier (si organisateur et en création) #}
+                    {% if app.user and sortie.organisateur == app.user and sortie.etat.libelle == 'En création' %}
+                        <a href="{{ path('sortie_edit', {id: sortie.id}) }}">Modifier</a>
+                    {% endif %}
+
+                    {# Annuler (si organisateur et ouverte/clôturée) #}
+                    {% if app.user
+                        and sortie.organisateur == app.user
+                        and (sortie.etat.libelle == 'Ouverte' or sortie.etat.libelle == 'Clôturée') %}
+                    <a href="{{ path('sortie_annuler', {id: sortie.id}) }}">Annuler</a>
                         and sortie.organisateur
                         and sortie.organisateur.id == app.user.id
                         and sortie.etat
                         and sortie.etat.libelle == 'En création'
-                    %}<a href="{{ path('sortie_edit', { id: sortie.id }) }}">
+                        %}<a href="{{ path('sortie_edit', { id: sortie.id }) }}">
                         Modifier
                     </a>
                     {% endif %}
@@ -102,7 +127,7 @@ Sorties | {{ parent() }}
             </tr>
         {% else %}
             <tr>
-                <td colspan="4">Aucune sortie disponible</td>
+                <td colspan="8">Aucune sortie disponible</td>
             </tr>
         {% endfor %}
         </tbody>
