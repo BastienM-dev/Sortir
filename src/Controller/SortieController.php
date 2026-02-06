@@ -24,7 +24,7 @@ class SortieController extends AbstractController
     // PARTIE JUSTINE - Création/Modification
     // ==========================================
 
-    #[Route('/creer', name: 'create', methods: ['GET', 'POST'])]
+    #[Route('/creer', name: 'sortie_create', methods: ['GET', 'POST'])]
     public function create(
         Request $request,
         EntityManagerInterface $em,
@@ -76,7 +76,7 @@ class SortieController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/modifier', name: 'edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/{id}/modifier', name: 'sortie_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function edit(
         Sortie $sortie,
         Request $request,
@@ -149,7 +149,7 @@ class SortieController extends AbstractController
     /**
      * Inscription à une sortie
      */
-    #[Route('/{id}/inscrire', name: 'inscrire', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[Route('/{id}/inscrire', name: 'sortie_inscrire', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function inscrire(
         Sortie $sortie,
         EntityManagerInterface $em,
@@ -215,7 +215,7 @@ class SortieController extends AbstractController
     /**
      * Désistement d'une sortie
      */
-    #[Route('/{id}/desister', name: 'desister', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[Route('/{id}/desister', name: 'sortie_desister', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function desister(
         Sortie $sortie,
         EntityManagerInterface $em,
@@ -268,7 +268,7 @@ class SortieController extends AbstractController
     /**
      * Annuler une sortie
      */
-    #[Route('/{id}/annuler', name: 'annuler', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route('/{id}/annuler', name: 'sortie_annuler', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function annuler(
         Sortie $sortie,
         EntityManagerInterface $em,

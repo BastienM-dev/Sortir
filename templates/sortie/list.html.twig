@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+Sorties | {{ parent() }}
+{% endblock %}
+
+{% block body %}
+
+    <form method="get" action="{{ path('sortie_list') }}" class="filter-form">
+        <div class="filters">
+            {# Campus/Site dropdown #}
+            <label for="campus">Campus</label>
+            <select name="campus" id="sortie-campus">
+                {% for campus in siteList %}
+                    <option value="{{ campus.id }}" {% if campus.id == app.request.query.get('campus') %}selected{% else %} {% if campus.id == site.id %}selected{% endif %}{% endif %}>
+                        {{ campus.nom }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            {# Search by sortie name #}
+            <label for="sortie-search">Le nom de la sortie contient</label>
+            <input type="text" id="sortie-search" name="search" placeholder="Search..."
+                   value="{{ app.request.query.get('search') }}">
+
+            {# Date range #}
+            <label for="date_from">Entre</label>
+            <input type="date" id="sortie-date_from" name="date_from" value="{{ app.request.query.get('date_from') }}">
+            <span>et</span>
+            <input type="date" id="sortie-date_to" name="date_to" value="{{ app.request.query.get('date_to') }}">
+
+            {# Checkboxes #}
+            <div class="checkboxes">
+                <label>
+                    <input type="checkbox" name="organisateur" value="1"
+                           {% if app.request.query.get('organisateur') %}checked{% endif %}>
+                    Sorties dont je suis l'organisateur/trice
+                </label>
+
+                <label>
+                    <input type="checkbox" name="inscrit" value="1"
+                           {% if app.request.query.get('inscrit') %}checked{% endif %}>
+                    Sorties auxquelles je suis inscrit/e
+                </label>
+
+                <label>
+                    <input type="checkbox" name="non_inscrit" value="1"
+                           {% if app.request.query.get('non_inscrit') %}checked{% endif %}>
+                    Sorties auxquelles je ne suis pas inscrit/e
+                </label>
+
+                <label>
+                    <input type="checkbox" name="terminees" value="1"
+                           {% if app.request.query.get('terminees') %}checked{% endif %}>
+                    Sorties terminées
+                </label>
+            </div>
+
+            <button type="submit">Rechercher</button>
+        </div>
+    </form>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Nom de la sortie</th>
+            <th>Date de la sortie</th>
+            <th>Clôture</th>
+            <th>Inscrits/Places</th>
+            <th>Etat</th>
+            <th>Inscrit</th>
+            <th>Organisateur</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for sortie in sortieList %}
+            <tr>
+                <td>{{ sortie.nom }}</td>
+                <td>{{ sortie.dateHeureDebut|date('d-m-Y H:i') }}</td>
+                <td>{{ sortie.dateLimiteInscription|date('d-m-Y') }}</td>
+                <td>{{ sortie.inscriptions|length }}/{{ sortie.nbInscriptionsMax }}</td>
+                <td>{{ sortie.etat.libelle }}</td>
+                {% if user in sortie.inscriptions %}
+                    <td>X</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+                <td>{{ sortie.organisateur.pseudo }}</td>
+                <td>
+                    <a href="{{ path('sortie_detail', { id: sortie.id }) }}">Afficher</a
+                    {% if app.user
+                        and sortie.organisateur
+                        and sortie.organisateur.id == app.user.id
+                        and sortie.etat
+                        and sortie.etat.libelle == 'En création'
+                    %}<a href="{{ path('sortie_edit', { id: sortie.id }) }}">
+                        Modifier
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">Aucune sortie disponible</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+
+{% endblock %}
