@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Sorties | {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    <h1 class="text-center">Page d'administration</h1>
+    <div>
+        <a class="btn btn-primary" href="{{ path('admin_campus') }}">Gérer les campus</a>
+        <a class="btn btn-primary" href="{{ path('admin_villes') }}">Gérer les villes</a>
+        <a class="btn btn-primary" href="{{ path('admin_utilisateurs') }}">Gérer les utilisateurs</a>
+    </div>
+{% endblock %}

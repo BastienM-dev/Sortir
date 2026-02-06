@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Sorties | {{ parent() }}
+{% endblock %}
+
+
+{% block body %}
+    <h1 class="center-text">Gérer les villes</h1>
+    <div>
+        <h6>Filtrer les sites</h6>
+        <div>
+            <form method="get" action="{{ path('admin_villes') }}" class="filter-form">
+                <label for="villes-search">Le nom de la sortie contient</label>
+                <input type="text" id="villes-search" name="search" placeholder="Search..."
+                       value="{{ app.request.query.get('search') }}">
+                <button type="submit">Rechercher</button>
+            </form>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Ville</th>
+            <th>Code postal</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for ville in villes %}
+                <tr>
+                    <td>{{ ville.nom }}</td>
+                    <td>{{ ville.codePostal }}</td>
+                </tr>
+            {% else %}
+                <td>Aucun campus trouvé.</td>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
