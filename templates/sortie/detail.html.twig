@@ -33,13 +33,14 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
                 {% for participant in participants %}
-                    <td>{{ participant.prenom }} {{ participant.nom }}</td>
+                    <tr>
+                        <td>{{ participant.prenom }} {{ participant.nom }}</td>
+                        <td> actions placeholder</td>
+                     </tr>
                 {% else %}
                     <td>Aucun participant inscrit.</td>
                 {% endfor %}
-            </tr>
         </tbody>
     </table>
 
