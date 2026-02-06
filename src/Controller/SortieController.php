@@ -9,6 +9,7 @@ use App\Entity\Participant;
 use App\Entity\Sortie;
 use App\Form\SortieType;
 use App\Repository\EtatRepository;
+use App\Repository\SiteRepository;
 use App\Repository\SortieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/sortie', name: 'sortie_')]
+//#[Route('/sortie', name: 'sortie_')]
 class SortieController extends AbstractController
 {
     // ==========================================
@@ -327,6 +328,117 @@ class SortieController extends AbstractController
         // Si GET : afficher le formulaire de confirmation
         return $this->render('sortie/annuler.html.twig', [
             'sortie' => $sortie,
+        ]);
+
+
+    }
+
+    #[Route('/', name:'sortie_list', methods: ['GET'])]
+    public function list(SortieRepository $sortieRepository, SiteRepository $siteRepository, Request $request, ): Response
+    {
+
+        /** @var \App\Entity\Participant $user */
+        $user = $this->getUser();
+        $siteList = $siteRepository->findBy([], ['nom' => 'ASC']);
+
+        if(!$siteList) {
+            throw $this->createNotFoundException('Pas de campus trouvés.');
+        }
+        if(!$user) {
+            $site = $siteRepository->findFirstAlphabetical();
+        }else{
+            $site = $user->getSite();
+        }
+
+        if($request->query->count() === 0){
+
+            $sortieList = $sortieRepository->findAllSortiesBySite($site);
+
+        }else{
+            $siteId = $request->query->get('campus');
+            $searchText = $request->query->get('search');
+            $startDate = $request->query->get('date_from');
+            $endDate = $request->query->get('date_to');
+            $organisateur = $request->query->get('organisateur');
+            $inscrit = $request->query->get('inscrit');
+            $nonInscrit = $request->query->get('non_inscrit');
+            $terminees = $request->query->get('terminees');
+
+            $qb = $sortieRepository->createQueryBuilder('s')
+                ->innerJoin('s.etat', 'e')
+                ->andWhere('s.site = :siteId')
+                ->setParameter('siteId', $siteId);
+            if($user){
+                $qb->andWhere(
+                    $qb->expr()->andX(
+                        $qb->expr()->eq('e.libelle', ':etatCreation'),
+                        $qb->expr()->eq('s.organisateur', ':organisateur')
+                    )
+                )
+                    ->setParameter('etatCreation', 'En création')  // Bind 'En création' to the query
+                    ->setParameter('organisateur', $user);
+            }
+
+
+
+
+            $etatsPubliques= ['Ouverte','Clôturée', 'En cours', 'Terminée', 'Annulée', 'Historisée'];
+            $qb->andWhere('e.libelle IN (:ETATS)')
+                ->setParameter('ETATS', $etatsPubliques);
+
+            if($startDate){
+                $startDate = \DateTimeImmutable::createFromFormat('Y-m-d', $startDate);
+                $qb->andWhere('s.dateHeureDebut > :startDate')
+                    ->setParameter('startDate', $startDate);
+            }
+            if($endDate){
+                $endDate = \DateTimeImmutable::createFromFormat('Y-m-d', $endDate);
+                $qb->andWhere('s.dateLimiteInscription < :endDate')->setParameter('endDate', $endDate);
+            }
+            if($organisateur){
+                $qb->andWhere('s.organisateur = :organisateur')
+                    ->setParameter('organisateur', $user);
+            }
+            if($inscrit){
+                $qb->andWhere(':user MEMBER OF s.inscriptions')
+                    ->setParameter('user', $user);
+            }
+            if($nonInscrit){
+                $qb->andWhere(':user NOT MEMBER OF s.inscriptions')
+                    ->setParameter('user', $user);
+            }
+            if ($searchText) {
+                $qb->andWhere('LOWER(s.nom) LIKE LOWER(:searchText)')
+                    ->setParameter('searchText', '%' . $searchText . '%');
+            }
+            if ($terminees) {
+//                $qb->innerJoin('s.etat', 'e')
+                   $qb->andWhere('e.libelle = :etatTerminee')
+                    ->setParameter('etatTerminee', 'Terminée');
+            }
+
+            $sortieList = $qb->getQuery()->getResult();
+        }
+
+
+        return $this->render('sortie/list.html.twig',
+            ['sortieList' => $sortieList,
+                'siteList' => $siteList,
+                'user' => $user,
+                'site' => $site,]);
+    }
+
+
+
+
+    #[Route('/{id}/detail', name: 'sortie_detail', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function detail(Sortie $sortie, SortieRepository $sortieRepository): Response
+    {
+        $participants = $sortie->getInscriptions()->map(fn($inscription) => $inscription->getParticipant());
+
+        return $this->render('sortie/detail.html.twig', [
+            'sortie' => $sortie,
+            'participants' => $participants,
         ]);
     }
 }
