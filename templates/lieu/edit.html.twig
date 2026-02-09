@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier un lieu{% endblock %}
+
+{% block body %}
+    <h1>Modifier le lieu : {{ lieu.nom }}</h1>
+
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+
+    <button type="submit">Enregistrer les modifications</button>
+    <a href="{{ path('admin_lieu_list') }}">Annuler</a>
+    {{ form_end(form) }}
+{% endblock %}
