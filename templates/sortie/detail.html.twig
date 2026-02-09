@@ -35,8 +35,8 @@
         <tbody>
                 {% for participant in participants %}
                     <tr>
+                        <td>{{ participant.pseudo }}</td>
                         <td>{{ participant.prenom }} {{ participant.nom }}</td>
-                        <td> actions placeholder</td>
                      </tr>
                 {% else %}
                     <td>Aucun participant inscrit.</td>

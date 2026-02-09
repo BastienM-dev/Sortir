@@ -413,7 +413,6 @@ class SortieController extends AbstractController
                     ->setParameter('searchText', '%' . $searchText . '%');
             }
             if ($terminees) {
-//                $qb->innerJoin('s.etat', 'e')
                    $qb->andWhere('e.libelle = :etatTerminee')
                     ->setParameter('etatTerminee', 'Terminée');
             }

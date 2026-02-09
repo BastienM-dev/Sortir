@@ -21,7 +21,7 @@ class AdminController extends AbstractController
     }
 
 
-    #[Route('/administration/campus', name: 'admin_campus', methods: ['GET'])]
+    #[Route('/administration/campus', name: 'admin_sites', methods: ['GET'])]
     public function campus(SiteRepository $siteRepository, Request $request): Response
     {
         $sites = $siteRepository->findBy([], ['nom' => 'ASC']);
