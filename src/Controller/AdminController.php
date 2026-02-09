@@ -1,14 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Repository\ParticipantRepository;
+use App\Repository\SiteRepository;
+use App\Repository\VilleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -16,12 +21,20 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 class AdminController extends AbstractController
 {
+    // ==========================================
+    // DASHBOARD
+    // ==========================================
+    
     #[Route('', name: 'dashboard', methods: ['GET'])]
     public function dashboard(): Response
     {
         return $this->render('admin/dashboard.html.twig');
     }
 
+    // ==========================================
+    // GESTION UTILISATEURS (Thaïs)
+    // ==========================================
+    
     #[Route('/users', name: 'users', methods: ['GET'])]
     public function users(ParticipantRepository $participantRepository): Response
     {
@@ -55,7 +68,7 @@ class AdminController extends AbstractController
         }
 
         // (Optionnel mais propre) on cast en int et on enlève les doublons / valeurs vides
-        $ids = array_values(array_unique(array_filter(array_map('interval', $ids))));
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
 
         // 3) On récupère les entités en une seule requête
         $users = $participantRepository->findByIds($ids);
@@ -87,8 +100,58 @@ class AdminController extends AbstractController
         return $this->redirectToRoute('admin_users');
     }
 
+    // ==========================================
+    // GESTION CAMPUS (Kevin)
+    // ==========================================
+    
+    #[Route('/campus', name: 'campus', methods: ['GET'])]
+    public function campus(SiteRepository $siteRepository, Request $request): Response
+    {
+        $sites = $siteRepository->findBy([], ['nom' => 'ASC']);
 
+        if($request->query->count() !== 0){
+            $searchText = $request->query->get('search');
 
+            $qb = $siteRepository->createQueryBuilder('s')
+                ->andWhere('LOWER(s.nom) LIKE LOWER(:searchText)')
+                ->setParameter('searchText', '%' . $searchText . '%');
 
+            $sites = $qb->getQuery()->getResult();
+        }
+
+        return $this->render('admin/campus.html.twig', ['sites' => $sites]);
+    }
+
+    // ==========================================
+    // GESTION VILLES (Kevin)
+    // ==========================================
+    
+    #[Route('/villes', name: 'villes')]
+    public function villes(VilleRepository $villeRepository, Request $request): Response
+    {
+        $villes = $villeRepository->findBy([], ['nom' => 'ASC']);
+
+        if($request->query->count() !== 0){
+            $searchText = $request->query->get('search');
+
+            $qb = $villeRepository->createQueryBuilder('v')
+                ->andWhere('LOWER(v.nom) LIKE LOWER(:searchText)')
+                ->setParameter('searchText', '%' . $searchText . '%');
+
+            $villes = $qb->getQuery()->getResult();
+        }
+
+        return $this->render('admin/villes.html.twig', ['villes' => $villes]);
+    }
+
+    // ==========================================
+    // LISTE UTILISATEURS (Kevin - à garder ou supprimer?)
+    // ==========================================
+    
+    #[Route('/utilisateurs', name: 'utilisateurs')]
+    public function utilisateurs(ParticipantRepository $participantRepository): Response
+    {
+        $participants = $participantRepository->findBy([], ['nom' => 'ASC']);
+        return $this->render('admin/utilisateurs.html.twig', ['participants' => $participants]);
+    }
 }
-

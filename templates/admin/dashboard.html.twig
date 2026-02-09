@@ -3,11 +3,17 @@
 {% block title %}Administration{% endblock %}
 
 {% block body %}
-    <h1>Administration</h1>
+    <h1 class="text-center">Page d'administration</h1>
 
-    <ul>
-        <li><a href="{{ path('admin_users') }}">Gérer les utilisateurs</a></li>
-        <li><a href="#">Gérer les campus</a></li>
-        <li><a href="#">Gérer les villes</a></li>
-    </ul>
+    <div>
+        <ul>
+            <li><a href="{{ path('admin_users') }}">Gérer les utilisateurs</a></li>
+            <li><a href="{{ path('admin_campus') }}">Gérer les campus</a></li>
+            <li><a href="{{ path('admin_villes') }}">Gérer les villes</a></li>
+        </ul>
+    </div>
+
+    {% if is_granted('ROLE_ADMIN') %}
+        Sorties | {{ parent() }}
+    {% endif %}
 {% endblock %}
