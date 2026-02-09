@@ -376,7 +376,7 @@ class SortieController extends AbstractController
     }
 
     #[Route('/', name:'sortie_list', methods: ['GET'])]
-    public function list(SortieRepository $sortieRepository, SiteRepository $siteRepository, Request $request, ): Response
+    public function list(SortieRepository $sortieRepository, SiteRepository $siteRepository, Request $request): Response
     {
 
         /** @var \App\Entity\Participant $user */
@@ -393,9 +393,49 @@ class SortieController extends AbstractController
             $site = $user->getSite();
         }
 
-        if($request->query->count() === 0){
+        // Pagination
+        $page = max(1, $request->query->getInt('page', 1));
+        $limit = 15;
+        $offset = ($page - 1) * $limit;
 
-            $sortieList = $sortieRepository->findAllSortiesBySite($site);
+        if($request->query->count() === 0){
+            // Affichage par défaut : toutes les sorties du site, paginées
+            $qb = $sortieRepository->createQueryBuilder('s')
+                ->innerJoin('s.etat', 'e')
+                ->andWhere('s.site = :site')
+                ->setParameter('site', $site);
+
+            // Afficher les sorties publiques + "En création" de l'utilisateur
+            if($user){
+                $qb->andWhere(
+                    $qb->expr()->orX(
+                        $qb->expr()->neq('e.libelle', ':etatCreation'),
+                        $qb->expr()->andX(
+                            $qb->expr()->eq('e.libelle', ':etatCreation'),
+                            $qb->expr()->eq('s.organisateur', ':currentUser')
+                        )
+                    )
+                )
+                    ->setParameter('etatCreation', 'En création')
+                    ->setParameter('currentUser', $user);
+            } else {
+                $qb->andWhere('e.libelle != :etatCreation')
+                    ->setParameter('etatCreation', 'En création');
+            }
+
+            $qb->orderBy('s.dateHeureDebut', 'ASC');
+
+            // Compter le total
+            $qbCount = clone $qb;
+            $totalSorties = (int) $qbCount->select('COUNT(s.id)')
+                ->getQuery()
+                ->getSingleScalarResult();
+
+            // Appliquer pagination
+            $sortieList = $qb->setFirstResult($offset)
+                ->setMaxResults($limit)
+                ->getQuery()
+                ->getResult();
 
         }else{
             $siteId = $request->query->get('site') ?: $site->getId();
@@ -488,15 +528,31 @@ class SortieController extends AbstractController
             // Application du tri
             $qb->orderBy('s.' . $sortBy, $order);
 
-            $sortieList = $qb->getQuery()->getResult();
+            // Compter le total
+            $qbCount = clone $qb;
+            $totalSorties = (int) $qbCount->select('COUNT(s.id)')
+                ->getQuery()
+                ->getSingleScalarResult();
+
+            // Appliquer pagination
+            $sortieList = $qb->setFirstResult($offset)
+                ->setMaxResults($limit)
+                ->getQuery()
+                ->getResult();
         }
 
-        return $this->render('sortie/list.html.twig',
-            ['sortieList' => $sortieList,
-                'siteList' => $siteList,
-                'user' => $user,
-                'site' => $site,
-            ]);
+        // Calcul du nombre de pages
+        $totalPages = (int) ceil($totalSorties / $limit);
+
+        return $this->render('sortie/list.html.twig', [
+            'sortieList' => $sortieList,
+            'siteList' => $siteList,
+            'user' => $user,
+            'site' => $site,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalSorties' => $totalSorties,
+        ]);
     }
 
     #[Route('/{id}/detail', name: 'sortie_detail', requirements: ['id' => '\d+'], methods: ['GET'])]
