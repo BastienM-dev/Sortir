@@ -19,25 +19,30 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
     {
         $faker = Factory::create('fr_FR');
 
+        // ⚠️ Sécurité : évite l'erreur "Data too long for column 'nom'"
+        // Mets 30 si ta colonne sorties.nom est VARCHAR(30). Sinon adapte à ta DB.
+        $maxNom = 30;
+        $cutNom = static fn (string $s): string => mb_substr($s, 0, $maxNom);
+
         // Récupérer les états
         $etatCreation = $this->getReference(AppFixtures::ETAT_EN_CREATION, Etat::class);
-        $etatOuverte = $this->getReference(AppFixtures::ETAT_OUVERTE, Etat::class);
+        $etatOuverte  = $this->getReference(AppFixtures::ETAT_OUVERTE, Etat::class);
         $etatCloturee = $this->getReference(AppFixtures::ETAT_CLOTUREE, Etat::class);
-        $etatEnCours = $this->getReference(AppFixtures::ETAT_EN_COURS, Etat::class);
+        $etatEnCours  = $this->getReference(AppFixtures::ETAT_EN_COURS, Etat::class);
         $etatTerminee = $this->getReference(AppFixtures::ETAT_TERMINEE, Etat::class);
-        $etatAnnulee = $this->getReference(AppFixtures::ETAT_ANNULEE, Etat::class);
+        $etatAnnulee  = $this->getReference(AppFixtures::ETAT_ANNULEE, Etat::class);
 
         // Récupérer les sites
         $siteSaintHerblain = $this->getReference(SiteFixtures::SITE_SAINT_HERBLAIN, Site::class);
-        $siteChartres = $this->getReference(SiteFixtures::SITE_CHARTRES, Site::class);
-        $siteLaRoche = $this->getReference(SiteFixtures::SITE_LA_ROCHE, Site::class);
+        $siteChartres      = $this->getReference(SiteFixtures::SITE_CHARTRES, Site::class);
+        $siteLaRoche       = $this->getReference(SiteFixtures::SITE_LA_ROCHE, Site::class);
 
         $sites = [$siteSaintHerblain, $siteChartres, $siteLaRoche];
 
         // --- SORTIES EN CRÉATION (2 sorties) ---
         for ($i = 1; $i <= 2; $i++) {
             $sortie = new Sortie();
-            $sortie->setNom("Sortie en création #$i");
+            $sortie->setNom($cutNom("Sortie en création #$i"));
             $sortie->setDateHeureDebut($faker->dateTimeBetween('+1 week', '+2 weeks'));
             $sortie->setDuree($faker->numberBetween(60, 240));
             $sortie->setDateLimiteInscription((clone $sortie->getDateHeureDebut())->modify('-3 days'));
@@ -60,9 +65,12 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
         // --- SORTIES OUVERTES avec places disponibles (5 sorties) ---
         for ($i = 1; $i <= 5; $i++) {
             $sortie = new Sortie();
-            $sortie->setNom("Sortie ouverte #$i - " . $faker->randomElement([
+
+            $nom = "Sortie ouverte #$i - " . $faker->randomElement([
                     'Bowling', 'Cinéma', 'Restaurant', 'Karting', 'Escape Game'
-                ]));
+                ]);
+            $sortie->setNom($cutNom($nom));
+
             $sortie->setDateHeureDebut($faker->dateTimeBetween('+5 days', '+3 weeks'));
             $sortie->setDuree($faker->numberBetween(90, 180));
             $sortie->setDateLimiteInscription((clone $sortie->getDateHeureDebut())->modify('-2 days'));
@@ -97,7 +105,7 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
 
         // --- SORTIE OUVERTE presque complète ---
         $sortie = new Sortie();
-        $sortie->setNom("Sortie presque complète - Laser Game");
+        $sortie->setNom($cutNom("Sortie presque complète - Laser Game"));
         $sortie->setDateHeureDebut($faker->dateTimeBetween('+1 week', '+2 weeks'));
         $sortie->setDuree(120);
         $sortie->setDateLimiteInscription((clone $sortie->getDateHeureDebut())->modify('-2 days'));
@@ -122,9 +130,10 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
         // --- SORTIES CLÔTURÉES (3 sorties) ---
         for ($i = 1; $i <= 3; $i++) {
             $sortie = new Sortie();
-            $sortie->setNom("Sortie clôturée #$i - " . $faker->randomElement([
-                    'Concert', 'Match', 'Théâtre'
-                ]));
+
+            $nom = "Sortie clôturée #$i - " . $faker->randomElement(['Concert', 'Match', 'Théâtre']);
+            $sortie->setNom($cutNom($nom));
+
             $sortie->setDateHeureDebut($faker->dateTimeBetween('+1 week', '+2 weeks'));
             $sortie->setDuree($faker->numberBetween(120, 240));
             $sortie->setDateLimiteInscription((clone $sortie->getDateHeureDebut())->modify('-1 day'));
@@ -159,7 +168,7 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
 
         // --- SORTIE EN COURS ---
         $sortie = new Sortie();
-        $sortie->setNom("Sortie en cours - Randonnée");
+        $sortie->setNom($cutNom("Sortie en cours - Randonnée"));
         $sortie->setDateHeureDebut($faker->dateTimeBetween('-2 hours', 'now'));
         $sortie->setDuree(240);
         $sortie->setDateLimiteInscription((clone $sortie->getDateHeureDebut())->modify('-3 days'));
@@ -182,7 +191,7 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
 
         // --- SORTIE TERMINÉE ---
         $sortie = new Sortie();
-        $sortie->setNom("Sortie terminée - Bowling");
+        $sortie->setNom($cutNom("Sortie terminée - Bowling"));
         $sortie->setDateHeureDebut($faker->dateTimeBetween('-1 week', '-2 days'));
         $sortie->setDuree(180);
         $sortie->setDateLimiteInscription((clone $sortie->getDateHeureDebut())->modify('-3 days'));
@@ -206,7 +215,7 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
         // --- SORTIES ANNULÉES (2 sorties) ---
         for ($i = 1; $i <= 2; $i++) {
             $sortie = new Sortie();
-            $sortie->setNom("Sortie annulée #$i");
+            $sortie->setNom($cutNom("Sortie annulée #$i"));
             $sortie->setDateHeureDebut($faker->dateTimeBetween('+1 week', '+2 weeks'));
             $sortie->setDuree(120);
             $sortie->setDateLimiteInscription((clone $sortie->getDateHeureDebut())->modify('-2 days'));

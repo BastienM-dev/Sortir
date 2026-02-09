@@ -54,7 +54,7 @@ class ParticipantFixtures extends Fixture implements DependentFixtureInterface
             $participant->setNom($lastName);
             $participant->setPrenom($firstName);
             $participant->setMail(strtolower($firstName) . '.' . strtolower($lastName) . '@example.com');
-            $participant->setTelephone($faker->phoneNumber());
+            $participant->setTelephone($faker->numerify('06########'));
             $participant->setAdministrateur(false);
             $participant->setActif($faker->boolean(90)); // 90% actifs
 
