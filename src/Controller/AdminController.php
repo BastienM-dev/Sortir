@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Repository\ParticipantRepository;
-use App\Repository\SiteRepository;
-use App\Repository\VilleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -47,15 +45,14 @@ class AdminController extends AbstractController
 
     #[Route('/users/delete', name: 'users_delete', methods: ['POST'])]
     public function deleteUsers(
-        Request                   $request,
-        ParticipantRepository     $participantRepository,
-        EntityManagerInterface    $em,
+        Request $request,
+        ParticipantRepository $participantRepository,
+        EntityManagerInterface $em,
         CsrfTokenManagerInterface $csrfTokenManager
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
 
         // 1) Vérification du token CSRF (protection contre les requêtes forgées)
-        $token = new CsrfToken('bulk_delete_users', (string)$request->request->get('_token'));
+        $token = new CsrfToken('bulk_delete_users', (string) $request->request->get('_token'));
         if (!$csrfTokenManager->isTokenValid($token)) {
             $this->addFlash('error', 'Token CSRF invalide.');
             return $this->redirectToRoute('admin_users');
@@ -100,4 +97,5 @@ class AdminController extends AbstractController
 
         return $this->redirectToRoute('admin_users');
     }
+
 }
