@@ -38,8 +38,8 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(max: 30)]
     private string $prenom;
 
-    #[ORM\Column(length: 15, nullable: true)]
-    #[Assert\Length(max: 15)]
+    #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Length(max: 20)]
     private ?string $telephone = null;
 
     #[ORM\Column(length: 180, unique: true, nullable: false)]
