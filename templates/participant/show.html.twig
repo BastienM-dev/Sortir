@@ -5,6 +5,26 @@
 {% block body %}
     <h1>Profil de {{ participant.pseudo }}</h1>
 
+    {# ===== Photo de profil ===== #}
+    <div style="margin-bottom: 20px;">
+        {% if participant.photoFilename %}
+            <img src="{{ asset('uploads/profiles/' ~ participant.photoFilename) }}"
+                 alt="Photo de profil"
+                 style="max-width:200px; border-radius:10px;">
+        {% else %}
+            <img src="{{ asset('img/default-avatar.png') }}"
+                 alt="Avatar par défaut"
+                 style="max-width:200px; border-radius:10px; opacity:0.7;">
+        {% endif %}
+    </div>
+
+    {# ===== Sécurité : seul le propriétaire du profil peut changer la photo ===== #}
+    {% if app.user and app.user.id == participant.id %}
+        <p style="margin-bottom: 20px;">
+            <a href="{{ path('profil_photo_edit') }}">Changer ma photo</a>
+        </p>
+    {% endif %}
+
     <div>
         <p><strong>Nom :</strong> {{ participant.nom }}</p>
         <p><strong>Prénom :</strong> {{ participant.prenom }}</p>
