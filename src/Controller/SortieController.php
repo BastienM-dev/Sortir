@@ -356,7 +356,7 @@ class SortieController extends AbstractController
             $sortieList = $sortieRepository->findAllSortiesBySite($site);
 
         }else{
-            $siteId = $request->query->get('campus');
+            $siteId = $request->query->get('site');
             $searchText = $request->query->get('search');
             $startDate = $request->query->get('date_from');
             $endDate = $request->query->get('date_to');
