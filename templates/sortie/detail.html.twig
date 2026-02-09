@@ -4,6 +4,16 @@
 
 {% block body %}
     <h1>Détails de la sortie</h1>
+
+    {# ✅ Affichage photo sortie si elle existe #}
+    {% if sortie.photoFilename %}
+        <div style="margin: 15px 0;">
+            <img src="{{ asset('uploads/sorties/' ~ sortie.photoFilename) }}"
+                 alt="Photo de la sortie"
+                 style="max-width:400px; border-radius:10px;">
+        </div>
+    {% endif %}
+
     <div>
         <p><strong>Nom de la sortie : </strong> {{ sortie.nom }}</p>
         <p><strong>Description : </strong> {{ sortie.infosSortie }}</p>
@@ -27,20 +37,20 @@
     <h3>Participants inscrits</h3>
     <table class="table">
         <thead>
-            <tr>
-                <th>Pseudo</th>
-                <th>Nom</th>
-            </tr>
+        <tr>
+            <th>Pseudo</th>
+            <th>Nom</th>
+        </tr>
         </thead>
         <tbody>
-                {% for participant in participants %}
-                    <tr>
-                        <td>{{ participant.prenom }} {{ participant.nom }}</td>
-                        <td> actions placeholder</td>
-                     </tr>
-                {% else %}
-                    <td>Aucun participant inscrit.</td>
-                {% endfor %}
+        {% for participant in participants %}
+            <tr>
+                <td>{{ participant.prenom }} {{ participant.nom }}</td>
+                <td> actions placeholder</td>
+            </tr>
+        {% else %}
+            <td>Aucun participant inscrit.</td>
+        {% endfor %}
         </tbody>
     </table>
 

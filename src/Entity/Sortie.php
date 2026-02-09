@@ -47,6 +47,10 @@ class Sortie
     #[ORM\Column(name: 'urlPhoto', length: 250, nullable: true)]
     private ?string $urlPhoto = null;
 
+    // ✅ AJOUT : on stocke uniquement le nom du fichier (pas le fichier)
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $photoFilename = null;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $motifAnnulation = null;
 
@@ -159,6 +163,18 @@ class Sortie
         return $this;
     }
 
+    // ✅ AJOUT : getter/setter photoFilename
+    public function getPhotoFilename(): ?string
+    {
+        return $this->photoFilename;
+    }
+
+    public function setPhotoFilename(?string $photoFilename): self
+    {
+        $this->photoFilename = $photoFilename;
+        return $this;
+    }
+
     public function getMotifAnnulation(): ?string
     {
         return $this->motifAnnulation;
@@ -228,6 +244,7 @@ class Sortie
             $this->inscriptions->add($inscription);
             $inscription->setSortie($this);
         }
+
         return $this;
     }
 
@@ -238,6 +255,7 @@ class Sortie
                 $inscription->setSortie(null);
             }
         }
+
         return $this;
     }
 

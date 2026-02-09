@@ -13,6 +13,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 
 class SortieType extends AbstractType
 {
@@ -36,6 +38,21 @@ class SortieType extends AbstractType
             ->add('urlPhoto', TextType::class, [
                 'required' => false,
             ])
+
+            // ✅ Upload photo (tâche 22)
+            ->add('photo', FileType::class, [
+                'label' => 'Photo (JPG/PNG/WebP)',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '4M',
+                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
+                        'mimeTypesMessage' => 'Merci d’uploader une image valide (jpg, png, webp).',
+                    ])
+                ],
+            ])
+
             ->add('lieu', EntityType::class, [
                 'class' => Lieu::class,
                 'choice_label' => 'nom',
