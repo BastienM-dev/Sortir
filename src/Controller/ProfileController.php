@@ -3,50 +3,60 @@
 namespace App\Controller;
 
 use App\Entity\Participant;
-use App\Form\ProfileType;
+use App\Form\ProfilePhotoType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ProfileController extends AbstractController
 {
-    #[Route('/profil', name: 'app_profile_edit')]
-    public function edit(
+    #[Route('/profil/photo', name: 'profil_photo_edit')]
+    public function editPhoto(
         Request $request,
         EntityManagerInterface $em,
-        UserPasswordHasherInterface $passwordHasher
+        SluggerInterface $slugger
     ): Response {
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
         /** @var Participant $user */
         $user = $this->getUser();
 
-        // Sécurité: si pas connecté, Symfony redirige souvent déjà via access_control,
-        // mais on sécurise quand même.
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        $form = $this->createForm(ProfileType::class, $user);
+        $form = $this->createForm(ProfilePhotoType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // ✅ Si l'utilisateur a saisi un nouveau mot de passe
-            $plainPassword = $form->get('plainPassword')->getData();
-            if (!empty($plainPassword)) {
-                $hashed = $passwordHasher->hashPassword($user, $plainPassword);
-                $user->setPassword($hashed);
+            $photoFile = $form->get('photo')->getData();
+
+            if ($photoFile) {
+                $originalFilename = pathinfo(
+                    $photoFile->getClientOriginalName(),
+                    PATHINFO_FILENAME
+                );
+
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$photoFile->guessExtension();
+
+                $photoFile->move(
+                    $this->getParameter('profile_photos_dir'),
+                    $newFilename
+                );
+
+                $user->setPhotoFilename($newFilename);
+                $em->flush();
+
+                $this->addFlash('success', 'Photo mise à jour ✅');
+
+                return $this->redirectToRoute('participant_show', [
+                    'id' => $user->getId(),
+                ]);
             }
-
-            $em->flush();
-
-            $this->addFlash('success', 'Profil mis à jour avec succès.');
-            return $this->redirectToRoute('app_profile_edit');
         }
 
-        return $this->render('profile/edit.html.twig', [
-            'profileForm' => $form,
+        return $this->render('profil/photo.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 }

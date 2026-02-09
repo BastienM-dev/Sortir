@@ -16,7 +16,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'participants_pseudo_uk', columns: ['pseudo'])]
 #[UniqueEntity(fields: ['pseudo'], message: 'Ce pseudo est déjà utilisé')]
 #[UniqueEntity(fields: ['mail'], message: 'Cet email est déjà utilisé')]
-
 class Participant implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -39,8 +38,8 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(max: 30)]
     private string $prenom;
 
-    #[ORM\Column(length: 15, nullable: true)]
-    #[Assert\Length(max: 15)]
+    #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Length(max: 20)]
     private ?string $telephone = null;
 
     #[ORM\Column(length: 180, unique: true, nullable: false)]
@@ -56,6 +55,14 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: false, options: ['default' => true])]
     private bool $actif = true;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\File(
+        maxSize: "2M",
+        mimeTypes: ["image/jpeg", "image/png", "image/webp"],
+        mimeTypesMessage: "Merci d’uploader une image valide (jpg, png, webp)"
+    )]
+    private ?string $photoFilename = null;
 
     #[ORM\ManyToOne(inversedBy: 'participants')]
     #[ORM\JoinColumn(name: 'sites_no_site', referencedColumnName: 'no_site', nullable: false)]
@@ -92,7 +99,6 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPseudo(string $pseudo): static
     {
         $this->pseudo = $pseudo;
-
         return $this;
     }
 
@@ -104,7 +110,6 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -116,7 +121,6 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPrenom(string $prenom): static
     {
         $this->prenom = $prenom;
-
         return $this;
     }
 
@@ -128,7 +132,6 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setTelephone(?string $telephone): static
     {
         $this->telephone = $telephone;
-
         return $this;
     }
 
@@ -140,13 +143,9 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setMail(string $mail): static
     {
         $this->mail = $mail;
-
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): string
     {
         return $this->password;
@@ -155,7 +154,6 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -167,7 +165,6 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setAdministrateur(bool $administrateur): static
     {
         $this->administrateur = $administrateur;
-
         return $this;
     }
 
@@ -179,7 +176,17 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setActif(bool $actif): static
     {
         $this->actif = $actif;
+        return $this;
+    }
 
+    public function getPhotoFilename(): ?string
+    {
+        return $this->photoFilename;
+    }
+
+    public function setPhotoFilename(?string $photoFilename): self
+    {
+        $this->photoFilename = $photoFilename;
         return $this;
     }
 
@@ -191,13 +198,9 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setSite(Site $site): static
     {
         $this->site = $site;
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Sortie>
-     */
     public function getSortiesOrganisees(): Collection
     {
         return $this->sortiesOrganisees;
@@ -209,7 +212,6 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
             $this->sortiesOrganisees->add($sortiesOrganisee);
             $sortiesOrganisee->setOrganisateur($this);
         }
-
         return $this;
     }
 
@@ -220,13 +222,9 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
                 $sortiesOrganisee->setOrganisateur(null);
             }
         }
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Inscription>
-     */
     public function getInscriptions(): Collection
     {
         return $this->inscriptions;
@@ -238,7 +236,6 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
             $this->inscriptions->add($inscription);
             $inscription->setParticipant($this);
         }
-
         return $this;
     }
 
@@ -249,39 +246,24 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
                 $inscription->setParticipant(null);
             }
         }
-
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = ['ROLE_USER'];
-
         if ($this->administrateur) {
             $roles[] = 'ROLE_ADMIN';
         }
-
         return array_unique($roles);
     }
 
-    /**
-     * @see UserInterface
-     */
     public function eraseCredentials(): void
     {
-        // Si vous stockez des données sensibles temporaires, nettoyez-les ici
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
-        // Identifiant "officiel" Symfony = mail (robuste)
-        // Même si on autorise la connexion par pseudo, l'identifiant de référence reste l'email.
-        return (string)$this->mail;
+        return (string) $this->mail;
     }
 }
