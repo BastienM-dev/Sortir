@@ -1,26 +1,26 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}
-Sorties | {{ parent() }}
+    Sorties | {{ parent() }}
 {% endblock %}
 
 {% block body %}
 
     <form method="get" action="{{ path('sortie_list') }}" class="filter-form">
         <div class="filters">
-            {# Campus/Site dropdown #}
-            <label for="campus">Campus</label>
-            <select name="campus" id="sortie-campus">
-                {% for campus in siteList %}
-                    <option value="{{ campus.id }}" {% if campus.id == app.request.query.get('campus') %}selected{% else %} {% if campus.id == site.id %}selected{% endif %}{% endif %}>
-                        {{ campus.nom }}
+            {# Site dropdown #}
+            <label for="site">Site</label>
+            <select name="site" id="sortie-site">
+                {% for site in siteList %}
+                    <option value="{{ site.id }}" {% if site.id == app.request.query.get('site') %}selected{% else %} {% if site.id == site.id %}selected{% endif %}{% endif %}>
+                        {{ site.nom }}
                     </option>
                 {% endfor %}
             </select>
 
             {# Search by sortie name #}
             <label for="sortie-search">Le nom de la sortie contient</label>
-            <input type="text" id="sortie-search" name="search" placeholder="Search..."
+            <input type="text" id="sortie-search" name="search" placeholder="Rechercher..."
                    value="{{ app.request.query.get('search') }}">
 
             {# Date range #}
@@ -81,14 +81,17 @@ Sorties | {{ parent() }}
                 <td>{{ sortie.dateLimiteInscription|date('d-m-Y') }}</td>
                 <td>{{ sortie.inscriptions|length }}/{{ sortie.nbInscriptionsMax }}</td>
                 <td>{{ sortie.etat.libelle }}</td>
-                {% if user in sortie.inscriptions %}
-                    <td>X</td>
-                {% else %}
-                    <td></td>
-                {% endif %}
+                <td>
+                    {% if sortie.inscriptions|filter(i => i.participant == app.user)|length > 0 %}
+                        X
+                    {% endif %}
+                </td>
                 <td>{{ sortie.organisateur.pseudo }}</td>
                 <td>
-                    <a href="{{ path('sortie_detail', { id: sortie.id }) }}">Afficher</a
+                    {# Afficher #}
+                    <a href="{{ path('sortie_detail', { id: sortie.id }) }}">Afficher</a>
+
+                    {# S'inscrire (si ouverte, pas inscrit, pas organisateur) #}
                     {% if app.user
                         and sortie.etat.libelle == 'Ouverte'
                         and sortie.inscriptions|filter(i => i.participant == app.user)|length == 0
@@ -114,14 +117,7 @@ Sorties | {{ parent() }}
                     {% if app.user
                         and sortie.organisateur == app.user
                         and (sortie.etat.libelle == 'Ouverte' or sortie.etat.libelle == 'Clôturée') %}
-                    <a href="{{ path('sortie_annuler', {id: sortie.id}) }}">Annuler</a>
-                        and sortie.organisateur
-                        and sortie.organisateur.id == app.user.id
-                        and sortie.etat
-                        and sortie.etat.libelle == 'En création'
-                        %}<a href="{{ path('sortie_edit', { id: sortie.id }) }}">
-                        Modifier
-                    </a>
+                        <a href="{{ path('sortie_annuler', {id: sortie.id}) }}">Annuler</a>
                     {% endif %}
                 </td>
             </tr>
@@ -132,7 +128,5 @@ Sorties | {{ parent() }}
         {% endfor %}
         </tbody>
     </table>
-
-
 
 {% endblock %}

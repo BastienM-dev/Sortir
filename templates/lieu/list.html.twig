@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des lieux{% endblock %}
+
+{% block body %}
+    <h1>Gestion des lieux</h1>
+
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('admin_lieu_create') }}">
+            <button type="button">Créer un nouveau lieu</button>
+        </a>
+    {% endif %}
+
+    {% for message in app.flashes('success') %}
+        <div style="padding:10px; margin:10px 0; border:1px solid #2ecc71; background:#d4edda; color:#155724;">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div style="padding:10px; margin:10px 0; border:1px solid #e74c3c; background:#f8d7da; color:#721c24;">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <h2>Liste des lieux ({{ lieux|length }})</h2>
+
+    {% if lieux is empty %}
+        <p>Aucun lieu enregistré pour le moment.</p>
+    {% else %}
+        <table border="1" style="width:100%; border-collapse:collapse;">
+            <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Rue</th>
+                <th>Ville</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Nb sorties</th>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <th>Actions</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for lieu in lieux %}
+                <tr>
+                    <td>{{ lieu.nom }}</td>
+                    <td>{{ lieu.rue ?? '-' }}</td>
+                    <td>{{ lieu.ville.nom }}</td>
+                    <td>{{ lieu.latitude ?? '-' }}</td>
+                    <td>{{ lieu.longitude ?? '-' }}</td>
+                    <td>{{ lieu.sorties|length }}</td>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <td>
+                            <a href="{{ path('admin_lieu_edit', {id: lieu.id}) }}">Modifier</a>
+
+                            {% if lieu.sorties|length == 0 %}
+                                <form method="post" action="{{ path('admin_lieu_delete', {id: lieu.id}) }}" style="display:inline;">
+                                    <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce lieu ?')">
+                                        Supprimer
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span style="color:#999;">(Utilisé)</span>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <br>
+    <a href="{{ path('sortie_list') }}">Retour à l'accueil</a>
+{% endblock %}
