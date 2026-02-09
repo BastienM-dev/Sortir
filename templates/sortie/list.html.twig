@@ -68,10 +68,50 @@
     <table class="table">
         <thead>
         <tr>
-            <th>Nom de la sortie</th>
-            <th>Date de la sortie</th>
-            <th>Clôture</th>
-            <th>Inscrits/Places</th>
+            <th>
+                <a href="{{ path('sortie_list', app.request.query.all|merge({
+                    'sort': 'nom',
+                    'order': (app.request.query.get('sort') == 'nom' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'
+                })) }}">
+                    Nom de la sortie
+                    {% if app.request.query.get('sort') == 'nom' %}
+                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}
+                    {% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="{{ path('sortie_list', app.request.query.all|merge({
+                    'sort': 'dateHeureDebut',
+                    'order': (app.request.query.get('sort') == 'dateHeureDebut' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'
+                })) }}">
+                    Date de la sortie
+                    {% if app.request.query.get('sort') == 'dateHeureDebut' %}
+                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}
+                    {% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="{{ path('sortie_list', app.request.query.all|merge({
+                    'sort': 'dateLimiteInscription',
+                    'order': (app.request.query.get('sort') == 'dateLimiteInscription' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'
+                })) }}">
+                    Clôture
+                    {% if app.request.query.get('sort') == 'dateLimiteInscription' %}
+                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}
+                    {% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="{{ path('sortie_list', app.request.query.all|merge({
+                    'sort': 'nbInscriptionsMax',
+                    'order': (app.request.query.get('sort') == 'nbInscriptionsMax' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'
+                })) }}">
+                    Inscrits/Places
+                    {% if app.request.query.get('sort') == 'nbInscriptionsMax' %}
+                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}
+                    {% endif %}
+                </a>
+            </th>
             <th>Etat</th>
             <th>Inscrit</th>
             <th>Organisateur</th>

@@ -466,11 +466,27 @@ class SortieController extends AbstractController
                 ')
                 ->setParameter('searchText', '%' . $searchText . '%');
             }
-            
+
             if ($terminees) {
                 $qb->andWhere('e.libelle = :etatTerminee')
                     ->setParameter('etatTerminee', 'Terminée');
             }
+
+            // Gestion du tri
+            $sortBy = $request->query->get('sort', 'dateHeureDebut'); // Colonne par défaut
+            $order = $request->query->get('order', 'ASC'); // Ordre par défaut
+
+            // Sécurité : colonnes autorisées pour le tri
+            $allowedSorts = ['nom', 'dateHeureDebut', 'dateLimiteInscription', 'nbInscriptionsMax'];
+            if (!in_array($sortBy, $allowedSorts)) {
+                $sortBy = 'dateHeureDebut';
+            }
+
+            // Sécurité : ordre ASC ou DESC uniquement
+            $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
+
+            // Application du tri
+            $qb->orderBy('s.' . $sortBy, $order);
 
             $sortieList = $qb->getQuery()->getResult();
         }
