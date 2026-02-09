@@ -16,8 +16,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
-//#[Route('/sortie', name: 'sortie_')]
 class SortieController extends AbstractController
 {
     // ==========================================
@@ -28,7 +28,8 @@ class SortieController extends AbstractController
     public function create(
         Request $request,
         EntityManagerInterface $em,
-        EtatRepository $etatRepository
+        EtatRepository $etatRepository,
+        SluggerInterface $slugger // ✅ AJOUT
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
@@ -48,6 +49,27 @@ class SortieController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // ✅ AJOUT UPLOAD PHOTO (on stocke seulement le nom)
+            $photoFile = $form->get('photo')->getData();
+            if ($photoFile) {
+                $uploadDir = $this->getParameter('sortie_photos_dir');
+
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0775, true);
+                }
+
+                $originalFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $photoFile->guessExtension();
+
+                $photoFile->move($uploadDir, $newFilename);
+
+                $sortie->setPhotoFilename($newFilename);
+            }
+            // ✅ FIN AJOUT UPLOAD PHOTO
+
+
             $etatEnCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
             $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
 
@@ -81,7 +103,8 @@ class SortieController extends AbstractController
         Sortie $sortie,
         Request $request,
         EntityManagerInterface $em,
-        EtatRepository $etatRepository
+        EtatRepository $etatRepository,
+        SluggerInterface $slugger // ✅ AJOUT
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
@@ -114,6 +137,27 @@ class SortieController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // ✅ AJOUT UPLOAD PHOTO (on stocke seulement le nom)
+            $photoFile = $form->get('photo')->getData();
+            if ($photoFile) {
+                $uploadDir = $this->getParameter('sortie_photos_dir');
+
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0775, true);
+                }
+
+                $originalFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $photoFile->guessExtension();
+
+                $photoFile->move($uploadDir, $newFilename);
+
+                $sortie->setPhotoFilename($newFilename);
+            }
+            // ✅ FIN AJOUT UPLOAD PHOTO
+
+
             $etatEnCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
             $etatOuverte    = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
 
@@ -329,8 +373,6 @@ class SortieController extends AbstractController
         return $this->render('sortie/annuler.html.twig', [
             'sortie' => $sortie,
         ]);
-
-
     }
 
     #[Route('/', name:'sortie_list', methods: ['GET'])]
@@ -380,9 +422,6 @@ class SortieController extends AbstractController
                     ->setParameter('organisateur', $user);
             }
 
-
-
-
             $etatsPubliques= ['Ouverte','Clôturée', 'En cours', 'Terminée', 'Annulée', 'Historisée'];
             $qb->andWhere('e.libelle IN (:ETATS)')
                 ->setParameter('ETATS', $etatsPubliques);
@@ -413,26 +452,20 @@ class SortieController extends AbstractController
                     ->setParameter('searchText', '%' . $searchText . '%');
             }
             if ($terminees) {
-//                $qb->innerJoin('s.etat', 'e')
-                   $qb->andWhere('e.libelle = :etatTerminee')
+                $qb->andWhere('e.libelle = :etatTerminee')
                     ->setParameter('etatTerminee', 'Terminée');
             }
 
             $sortieList = $qb->getQuery()->getResult();
         }
 
-
-
         return $this->render('sortie/list.html.twig',
             ['sortieList' => $sortieList,
                 'siteList' => $siteList,
                 'user' => $user,
                 'site' => $site,
-                ]);
+            ]);
     }
-
-
-
 
     #[Route('/{id}/detail', name: 'sortie_detail', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function detail(Sortie $sortie, SortieRepository $sortieRepository): Response
