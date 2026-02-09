@@ -11,9 +11,14 @@
             {# Site dropdown #}
             <label for="site">Site</label>
             <select name="site" id="sortie-site">
-                {% for site in siteList %}
-                    <option value="{{ site.id }}" {% if site.id == app.request.query.get('site') %}selected{% else %} {% if site.id == site.id %}selected{% endif %}{% endif %}>
-                        {{ site.nom }}
+                {% for siteItem in siteList %}
+                    <option value="{{ siteItem.id }}"
+                            {% if app.request.query.get('site') and siteItem.id == app.request.query.get('site') %}
+                                selected
+                            {% elseif not app.request.query.get('site') and siteItem.id == site.id %}
+                                selected
+                            {% endif %}>
+                        {{ siteItem.nom }}
                     </option>
                 {% endfor %}
             </select>

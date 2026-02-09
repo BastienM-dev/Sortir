@@ -398,7 +398,7 @@ class SortieController extends AbstractController
             $sortieList = $sortieRepository->findAllSortiesBySite($site);
 
         }else{
-            $siteId = $request->query->get('site');
+            $siteId = $request->query->get('site') ?: $site->getId();
             $searchText = $request->query->get('search');
             $startDate = $request->query->get('date_from');
             $endDate = $request->query->get('date_to');
@@ -409,22 +409,31 @@ class SortieController extends AbstractController
 
             $qb = $sortieRepository->createQueryBuilder('s')
                 ->innerJoin('s.etat', 'e')
+                ->leftJoin('s.lieu', 'l')
+                ->leftJoin('l.ville', 'v')
+                ->leftJoin('s.organisateur', 'org')
                 ->andWhere('s.site = :siteId')
                 ->setParameter('siteId', $siteId);
+            // Logique : afficher toutes les sorties publiques + les sorties "En création" de l'utilisateur
             if($user){
                 $qb->andWhere(
-                    $qb->expr()->andX(
-                        $qb->expr()->eq('e.libelle', ':etatCreation'),
-                        $qb->expr()->eq('s.organisateur', ':organisateur')
+                    $qb->expr()->orX(
+                    // Soit la sortie n'est PAS en création (= elle est publique)
+                        $qb->expr()->neq('e.libelle', ':etatCreation'),
+                        // Soit elle EST en création mais l'utilisateur est l'organisateur
+                        $qb->expr()->andX(
+                            $qb->expr()->eq('e.libelle', ':etatCreation'),
+                            $qb->expr()->eq('s.organisateur', ':currentUser')
+                        )
                     )
                 )
-                    ->setParameter('etatCreation', 'En création')  // Bind 'En création' to the query
-                    ->setParameter('organisateur', $user);
+                    ->setParameter('etatCreation', 'En création')
+                    ->setParameter('currentUser', $user);
+            } else {
+                // Si pas connecté, ne JAMAIS afficher les sorties "En création"
+                $qb->andWhere('e.libelle != :etatCreation')
+                    ->setParameter('etatCreation', 'En création');
             }
-
-            $etatsPubliques= ['Ouverte','Clôturée', 'En cours', 'Terminée', 'Annulée', 'Historisée'];
-            $qb->andWhere('e.libelle IN (:ETATS)')
-                ->setParameter('ETATS', $etatsPubliques);
 
             if($startDate){
                 $startDate = \DateTimeImmutable::createFromFormat('Y-m-d', $startDate);
@@ -448,9 +457,16 @@ class SortieController extends AbstractController
                     ->setParameter('user', $user);
             }
             if ($searchText) {
-                $qb->andWhere('LOWER(s.nom) LIKE LOWER(:searchText)')
-                    ->setParameter('searchText', '%' . $searchText . '%');
+                $qb->andWhere('
+                    LOWER(s.nom) LIKE LOWER(:searchText)
+                    OR LOWER(s.infosSortie) LIKE LOWER(:searchText)
+                    OR LOWER(l.nom) LIKE LOWER(:searchText)
+                    OR LOWER(v.nom) LIKE LOWER(:searchText)
+                    OR LOWER(org.pseudo) LIKE LOWER(:searchText)
+                ')
+                ->setParameter('searchText', '%' . $searchText . '%');
             }
+            
             if ($terminees) {
                 $qb->andWhere('e.libelle = :etatTerminee')
                     ->setParameter('etatTerminee', 'Terminée');
