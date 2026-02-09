@@ -8,9 +8,17 @@
     {# ✅ Affichage photo sortie si elle existe #}
     {% if sortie.photoFilename %}
         <div style="margin: 15px 0;">
-            <img src="{{ asset('uploads/sorties/' ~ sortie.photoFilename) }}"
+
+            {# ✅ Miniature en priorité (jpg) + fallback vers l'original si elle n'existe pas #}
+            {% set filename = sortie.photoFilename %}
+            {% set base = filename|split('.')|slice(0, -1)|join('.') %}
+            {% set thumb = base ~ '.jpg' %}
+
+            <img src="{{ asset('uploads/sorties/thumbs/' ~ thumb) }}"
                  alt="Photo de la sortie"
-                 style="max-width:400px; border-radius:10px;">
+                 style="max-width:400px; border-radius:10px;"
+                 loading="lazy"
+                 onerror="this.onerror=null;this.src='{{ asset('uploads/sorties/' ~ filename) }}';">
         </div>
     {% endif %}
 
