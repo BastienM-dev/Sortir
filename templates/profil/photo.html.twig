@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Photo de profil{% endblock %}
+
+{% block body %}
+    <h1>Changer ma photo de profil</h1>
+
+    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+    {{ form_row(form.photo) }}
+    <button type="submit">Enregistrer</button>
+    {{ form_end(form) }}
+{% endblock %}
