@@ -74,6 +74,11 @@ header {
     text-decoration: underline;
 }
 
+.user-actions .sep {
+    margin: 0 6px;
+    color: #555;
+}
+
 /* =========================
    CONTENU PRINCIPAL
 ========================= */

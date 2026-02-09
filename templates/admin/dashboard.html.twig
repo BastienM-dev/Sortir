@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration{% endblock %}
+
+{% block body %}
+    <h1>Administration</h1>
+
+    <ul>
+        <li><a href="{{ path('admin_users') }}">Gérer les utilisateurs</a></li>
+        <li><a href="#">Gérer les campus</a></li>
+        <li><a href="#">Gérer les villes</a></li>
+    </ul>
+{% endblock %}
