@@ -34,10 +34,10 @@ security:
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/logout, roles: PUBLIC_ACCESS }
-        - { path: ^/, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: ROLE_USER }
-        - { path: ^/administration, roles: ROLE_ADMIN }
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/ville, roles: ROLE_ADMIN }
+        - { path: ^/campus, roles: ROLE_ADMIN }
 
 # Environment-specific configuration (if needed)
 when@test:
