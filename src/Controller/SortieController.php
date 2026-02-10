@@ -462,9 +462,6 @@ class SortieController extends AbstractController
 
             $qb = $sortieRepository->createQueryBuilder('s')
                 ->innerJoin('s.etat', 'e')
-                ->leftJoin('s.lieu', 'l')
-                ->leftJoin('l.ville', 'v')
-                ->leftJoin('s.organisateur', 'org')
                 ->andWhere('s.site = :siteId')
                 ->setParameter('siteId', $siteId);
             // Logique : afficher toutes les sorties publiques + les sorties "En création" de l'utilisateur
@@ -490,12 +487,12 @@ class SortieController extends AbstractController
             }
 
             if($startDate){
-                $startDate = \DateTimeImmutable::createFromFormat('Y-m-d', $startDate);
+                $startDate = \DateTime::createFromFormat('Y-m-d', $startDate);
                 $qb->andWhere('s.dateHeureDebut > :startDate')
                     ->setParameter('startDate', $startDate);
             }
             if($endDate){
-                $endDate = \DateTimeImmutable::createFromFormat('Y-m-d', $endDate);
+                $endDate = \DateTime::createFromFormat('Y-m-d', $endDate);
                 $qb->andWhere('s.dateLimiteInscription < :endDate')->setParameter('endDate', $endDate);
             }
             if($organisateur){
@@ -511,11 +508,12 @@ class SortieController extends AbstractController
                     ->setParameter('user', $user);
             }
             if ($searchText) {
-                $qb->andWhere('
+                $qb->leftJoin('s.lieu', 'l')
+                    ->leftJoin('l.ville', 'v')
+                    ->leftJoin('s.organisateur', 'org')
+                    ->andWhere('
                     LOWER(s.nom) LIKE LOWER(:searchText)
                     OR LOWER(s.infosSortie) LIKE LOWER(:searchText)
-                    OR LOWER(l.nom) LIKE LOWER(:searchText)
-                    OR LOWER(v.nom) LIKE LOWER(:searchText)
                     OR LOWER(org.pseudo) LIKE LOWER(:searchText)
                 ')
                 ->setParameter('searchText', '%' . $searchText . '%');
