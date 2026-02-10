@@ -25,8 +25,7 @@ class ProfileType extends AbstractType
                 'required' => false,
             ])
 
-            // Champ NON mappé : on ne le stocke pas tel quel.
-            // On le hash dans le controller si l'utilisateur l'a rempli.
+            // Champ NON mappé : on hash dans le controller si rempli
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
                 'required' => false,

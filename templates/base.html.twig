@@ -27,8 +27,11 @@
                         <a href="{{ path('admin_dashboard') }}">Administration</a>
                     {% endif %}
                     <span class="sep">|</span>
-                    <a href="{{ path('app_logout') }}">Se déconnecter</a>
+                    <a href="{{ path('app_login') }}">Accueil</a>
+                    <a href="{{ path('profil_edit') }}">Mon profil</a> <span class="sep">|</span>
+                    <a href="{{ path('app_logout') }}">Se déconnecter</a> <span class="sep">|</span>
                 </div>
+
             {% endif %}
         </div>
     </header>
