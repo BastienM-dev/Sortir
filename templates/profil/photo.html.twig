@@ -19,6 +19,6 @@
     {{ form_row(form.photo) }}
 
     <button type="submit">Enregistrer</button>
-    <a href="{{ path('profil_edit') }}">Retour au profil</a>
+    <a href="{{ path('participant_show', {'id': app.user.id}) }}">Retour au profil</a>
     {{ form_end(form) }}
 {% endblock %}
