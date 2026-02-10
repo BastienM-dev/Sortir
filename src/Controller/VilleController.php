@@ -20,6 +20,12 @@ class VilleController extends AbstractController
     #[Route('/ville/liste', name: 'ville_list')]
     public function liste(VilleRepository $villeRepository, Request $request, EntityManagerInterface $em): Response
     {
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('error', 'Vous n\'avez pas l\'autorisation necessaire pour voir cette page.');
+
+            return $this->redirectToRoute('main_index');
+        }
+
         $villes = $villeRepository->findBy([], ['nom' => 'ASC']);
 
         if($request->query->count() !== 0){
@@ -54,6 +60,13 @@ class VilleController extends AbstractController
     #[Route('/ville/{id}/supprimer', name: 'ville_delete', methods: ['POST'])]
     public function delete(Ville $ville, Request $request, EntityManagerInterface $em): Response
     {
+
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('error', 'Vous n\'avez pas l\'autorisation de supprimer une ville.');
+
+            return $this->redirectToRoute('main_index');
+        }
+
         if ($this->isCsrfTokenValid('delete_ville_' . $ville->getId(), $request->request->get('_token'))) {
             if (count($ville->getLieux()) > 0) {
                 $this->addFlash('error', 'Impossible de supprimer cette ville car elle contient des lieux.');
@@ -75,6 +88,12 @@ class VilleController extends AbstractController
         #[Route('/ville/ajouter', name: 'ville_ajouter', methods: ['POST', 'GET'])]
     public function ajouter(Request $request, EntityManagerInterface $em): Response
     {
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('error', 'Vous n\'avez pas l\'autorisation necessaire pour ajouter une ville.');
+
+            return $this->redirectToRoute('main_index');
+        }
+
         $ville = new Ville();
 
         $villeForm = $this->createForm(VilleType::class, $ville);
@@ -95,6 +114,11 @@ class VilleController extends AbstractController
     #[Route('/ville/{id}/modifier', name: 'ville_edit', methods: ['POST', 'GET'])]
     public function edit(Request $request, EntityManagerInterface $em, Ville $ville): Response
     {
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('error', 'Vous n\'avez pas l\'autorisation necessaire pour modifier une ville.');
+
+            return $this->redirectToRoute('main_index');
+        }
         $villeForm = $this->createForm(VilleType::class, $ville);
 
         $villeForm->handleRequest($request);
