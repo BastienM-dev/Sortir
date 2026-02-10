@@ -68,6 +68,7 @@
     <table class="table">
         <thead>
         <tr>
+            <th>Photo</th>
             <th>
                 <a href="{{ path('sortie_list', app.request.query.all|merge({
                     'sort': 'nom',
@@ -121,6 +122,24 @@
         <tbody>
         {% for sortie in sortieList %}
             <tr>
+
+                {# ✅ Colonne Photo (miniature) #}
+                <td>
+                    {% if sortie.photoFilename %}
+                        {% set filename = sortie.photoFilename %}
+                        {% set base = filename|split('.')|slice(0, -1)|join('.') %}
+                        {% set thumb = base ~ '.jpg' %}
+
+                        <img
+                                src="{{ asset('uploads/sorties/thumbs/' ~ thumb) }}"
+                                alt="Miniature sortie"
+                                loading="lazy"
+                                style="width:70px; height:70px; object-fit:cover; border-radius:10px;"
+                                onerror="this.onerror=null;this.src='{{ asset('uploads/sorties/' ~ filename) }}';"
+                        >
+                    {% endif %}
+                </td>
+
                 <td>{{ sortie.nom }}</td>
                 <td>{{ sortie.dateHeureDebut|date('d-m-Y H:i') }}</td>
                 <td>{{ sortie.dateLimiteInscription|date('d-m-Y') }}</td>
@@ -168,7 +187,7 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="8">Aucune sortie disponible</td>
+                <td colspan="9">Aucune sortie disponible</td>
             </tr>
         {% endfor %}
         </tbody>
