@@ -6,6 +6,7 @@
 parameters:
     profile_photos_dir: '%kernel.project_dir%/public/uploads/profiles'
     sortie_photos_dir: '%kernel.project_dir%/public/uploads/sorties'
+    sortie_thumbs_dir: '%kernel.project_dir%/public/uploads/sorties/thumbs'
 
 services:
     # default configuration for services in *this* file
