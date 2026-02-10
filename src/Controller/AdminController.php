@@ -35,15 +35,23 @@ class AdminController extends AbstractController
     // GESTION UTILISATEURS (Thaïs)
     // ==========================================
     
-    #[Route('/users', name: 'users', methods: ['GET'])]
-    public function users(ParticipantRepository $participantRepository): Response
+    #[Route('/admin/users', name: 'admin_users', methods: ['GET'])]
+    public function users(Request $request, ParticipantRepository $repo): Response
     {
-        $users = $participantRepository->findBy([], ['nom' => 'ASC', 'prenom' => 'ASC']);
+        $q = trim((string) $request->query->get('q', ''));
+        $actif = (string) $request->query->get('actif', '');
+        $admin = (string) $request->query->get('admin', '');
+
+        $users = $repo->searchUsers($q ?: null, $actif ?: null, $admin ?: null);
 
         return $this->render('admin/users/index.html.twig', [
             'users' => $users,
+            'q' => $q,
+            'actif' => $actif,
+            'admin' => $admin,
         ]);
     }
+
 
     #[Route('/users/delete', name: 'users_delete', methods: ['POST'])]
     public function deleteUsers(
