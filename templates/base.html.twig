@@ -1,69 +1,71 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Sortir.com{% endblock %}</title>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Sortir.com{% endblock %}</title>
 
-        <link rel="stylesheet" href="{{ asset('css/base.css') }}">
-        {% block stylesheets %}{% endblock %}
-    </head>
+    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
 
-    <body>
+<body>
 
-    <header class="site-header">
-        <div class="header-main">
-            <div class="logo">
+<header class="site-header">
+    <div class="header-main">
+        <div class="logo">
             <img src="{{ asset('img/logo.png') }}" alt="Logo Sortir.com">
         </div>
+
         <div class="site-title">Sortir.com</div>
-            {% if app.user %}
-                <div class="user-actions">
+
+        {% if app.user %}
+            <div class="user-actions">
                     <span class="username">
                         {{ app.user.userIdentifier }}
                     </span>
-                    {# Lien visible uniquement pour les administrateurs #}
-                    {% if is_granted('ROLE_ADMIN') %}
-                        <span class="sep">|</span>
-                        <a href="{{ path('admin_dashboard') }}">Administration</a>
-                    {% endif %}
+
+                {# Lien visible uniquement pour les administrateurs #}
+                {% if is_granted('ROLE_ADMIN') %}
                     <span class="sep">|</span>
-                    <a href="{{ path('app_logout') }}">Se déconnecter</a>
-                </div>
-            {% endif %}
-        </div>
-    </header>
+                    <a href="{{ path('admin_dashboard') }}">Administration</a>
+                {% endif %}
+
+                <span class="sep">|</span>
+                <a href="{{ path('app_logout') }}">Se déconnecter</a>
+            </div>
+        {% endif %}
+    </div>
+</header>
+
+{# ✅ Navbar visible tout le temps #}
+<nav class="main-nav">
+    <a href="{{ path('main_index') }}">Accueil</a>
 
     {% if app.user %}
-        <nav class="main-nav">
-            <a href="{{ path('main_index') }}">Accueil</a>
+        <a href="{{ path('participant_show', {'id': app.user.id}) }}">
+            Mon profil
+        </a>
 
-            <a href="{{ path('participant_show', {'id': app.user.id}) }}">
-                Mon profil
-            </a>
-
-
-            <a href="{{ path('sortie_create') }}">
-                Créer une sortie
-            </a>
-
-            {% if is_granted('ROLE_ADMIN') %}
-                {# Lien admin si vous en avez plus tard #}
-                {# <a href="{{ path('admin_index') }}">Admin</a> #}
-            {% endif %}
-
-        </nav>
+        <a href="{{ path('sortie_create') }}">
+            Créer une sortie
+        </a>
+    {% else %}
+        <a href="{{ path('app_login') }}">
+            Se connecter
+        </a>
     {% endif %}
+</nav>
 
+<main class="page-content">
+    {% block body %}{% endblock %}
+</main>
 
-    <main class="page-content">
-        {% block body %}{% endblock %}
-    </main>
-    <footer>
-      <div class="container text-center" >
-         &copy; ENI Ecole - {{ "now"|date("Y") }}
-        </div>
-    </footer>
+<footer>
+    <div class="container text-center">
+        &copy; ENI Ecole - {{ "now"|date("Y") }}
+    </div>
+</footer>
 
-    {% block javascripts %}{% endblock %}
-    </body>
+{% block javascripts %}{% endblock %}
+</body>
 </html>
