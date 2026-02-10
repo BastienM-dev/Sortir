@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Repository\ParticipantRepository;
-use App\Repository\SiteRepository;
-use App\Repository\VilleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -24,7 +22,7 @@ class AdminController extends AbstractController
     // ==========================================
     // DASHBOARD
     // ==========================================
-    
+
     #[Route('', name: 'dashboard', methods: ['GET'])]
     public function dashboard(): Response
     {
@@ -35,7 +33,7 @@ class AdminController extends AbstractController
     // GESTION UTILISATEURS (Thaïs)
     // ==========================================
     
-    #[Route('/admin/users', name: 'admin_users', methods: ['GET'])]
+    #[Route('/users', name: 'users', methods: ['GET'])]
     public function users(Request $request, ParticipantRepository $repo): Response
     {
         $q = trim((string) $request->query->get('q', ''));
@@ -108,58 +106,4 @@ class AdminController extends AbstractController
         return $this->redirectToRoute('admin_users');
     }
 
-    // ==========================================
-    // GESTION CAMPUS (Kevin)
-    // ==========================================
-    
-    #[Route('/campus', name: 'campus', methods: ['GET'])]
-    public function campus(SiteRepository $siteRepository, Request $request): Response
-    {
-        $sites = $siteRepository->findBy([], ['nom' => 'ASC']);
-
-        if($request->query->count() !== 0){
-            $searchText = $request->query->get('search');
-
-            $qb = $siteRepository->createQueryBuilder('s')
-                ->andWhere('LOWER(s.nom) LIKE LOWER(:searchText)')
-                ->setParameter('searchText', '%' . $searchText . '%');
-
-            $sites = $qb->getQuery()->getResult();
-        }
-
-        return $this->render('admin/campus.html.twig', ['sites' => $sites]);
-    }
-
-    // ==========================================
-    // GESTION VILLES (Kevin)
-    // ==========================================
-    
-    #[Route('/villes', name: 'villes')]
-    public function villes(VilleRepository $villeRepository, Request $request): Response
-    {
-        $villes = $villeRepository->findBy([], ['nom' => 'ASC']);
-
-        if($request->query->count() !== 0){
-            $searchText = $request->query->get('search');
-
-            $qb = $villeRepository->createQueryBuilder('v')
-                ->andWhere('LOWER(v.nom) LIKE LOWER(:searchText)')
-                ->setParameter('searchText', '%' . $searchText . '%');
-
-            $villes = $qb->getQuery()->getResult();
-        }
-
-        return $this->render('admin/villes.html.twig', ['villes' => $villes]);
-    }
-
-    // ==========================================
-    // LISTE UTILISATEURS (Kevin - à garder ou supprimer?)
-    // ==========================================
-    
-    #[Route('/utilisateurs', name: 'utilisateurs')]
-    public function utilisateurs(ParticipantRepository $participantRepository): Response
-    {
-        $participants = $participantRepository->findBy([], ['nom' => 'ASC']);
-        return $this->render('admin/utilisateurs.html.twig', ['participants' => $participants]);
-    }
 }

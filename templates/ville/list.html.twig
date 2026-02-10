@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Sorties | {{ parent() }}
+{% endblock %}
+
+
+{% block body %}
+    <h1 class="center-text">Gérer les villes</h1>
+    <div>
+        <h3>Filtrer les villes</h3>
+        <div>
+            <form method="get" action="{{ path('ville_list') }}" class="filter-form">
+                <label for="ville-search">Le nom de la ville contient</label>
+                <input type="text" id="ville-search" name="search" placeholder="Search..."
+                       value="{{ app.request.query.get('search') }}">
+                <button type="submit">Rechercher</button>
+            </form>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Ville</th>
+            <th>Code postal</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ville in villes %}
+            <tr>
+                <td>{{ ville.nom }}</td>
+                <td>{{ ville.codePostal }}</td>
+                <td><a href="{{ path('ville_edit', { id: ville.id }) }}"> Modifier </a>
+                    <form
+                            method="post"
+                            action="{{ path('ville_delete', { id: ville.id }) }}"
+                            onsubmit="return confirm('Supprimer {{ ville.nom }} ? ');"
+                            style="display:inline"
+                    >
+                        <input type="hidden" name="_token"
+                               value="{{ csrf_token('delete_ville_' ~ ville.id) }}">
+
+                        <button class="btn btn-link">
+                            Supprimer
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <td>Aucune ville trouvée.</td>
+        {% endfor %}
+        <tr>
+            <td> {{ form_start(villeForm) }}{{ form_widget(villeForm.nom) }}</td>
+            <td>{{ form_widget(villeForm.codePostal) }}</td>
+            <td><button>Rajouter</button>{{ form_end(villeForm) }}</td>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}

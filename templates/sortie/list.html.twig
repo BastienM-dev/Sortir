@@ -11,9 +11,14 @@
             {# Site dropdown #}
             <label for="site">Site</label>
             <select name="site" id="sortie-site">
-                {% for site in siteList %}
-                    <option value="{{ site.id }}" {% if site.id == app.request.query.get('site') %}selected{% else %} {% if site.id == site.id %}selected{% endif %}{% endif %}>
-                        {{ site.nom }}
+                {% for siteItem in siteList %}
+                    <option value="{{ siteItem.id }}"
+                            {% if app.request.query.get('site') and siteItem.id == app.request.query.get('site') %}
+                                selected
+                            {% elseif not app.request.query.get('site') and siteItem.id == site.id %}
+                                selected
+                            {% endif %}>
+                        {{ siteItem.nom }}
                     </option>
                 {% endfor %}
             </select>
@@ -63,10 +68,51 @@
     <table class="table">
         <thead>
         <tr>
-            <th>Nom de la sortie</th>
-            <th>Date de la sortie</th>
-            <th>Clôture</th>
-            <th>Inscrits/Places</th>
+            <th>Photo</th>
+            <th>
+                <a href="{{ path('sortie_list', app.request.query.all|merge({
+                    'sort': 'nom',
+                    'order': (app.request.query.get('sort') == 'nom' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'
+                })) }}">
+                    Nom de la sortie
+                    {% if app.request.query.get('sort') == 'nom' %}
+                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}
+                    {% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="{{ path('sortie_list', app.request.query.all|merge({
+                    'sort': 'dateHeureDebut',
+                    'order': (app.request.query.get('sort') == 'dateHeureDebut' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'
+                })) }}">
+                    Date de la sortie
+                    {% if app.request.query.get('sort') == 'dateHeureDebut' %}
+                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}
+                    {% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="{{ path('sortie_list', app.request.query.all|merge({
+                    'sort': 'dateLimiteInscription',
+                    'order': (app.request.query.get('sort') == 'dateLimiteInscription' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'
+                })) }}">
+                    Clôture
+                    {% if app.request.query.get('sort') == 'dateLimiteInscription' %}
+                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}
+                    {% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="{{ path('sortie_list', app.request.query.all|merge({
+                    'sort': 'nbInscriptionsMax',
+                    'order': (app.request.query.get('sort') == 'nbInscriptionsMax' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'
+                })) }}">
+                    Inscrits/Places
+                    {% if app.request.query.get('sort') == 'nbInscriptionsMax' %}
+                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}
+                    {% endif %}
+                </a>
+            </th>
             <th>Etat</th>
             <th>Inscrit</th>
             <th>Organisateur</th>
@@ -76,6 +122,24 @@
         <tbody>
         {% for sortie in sortieList %}
             <tr>
+
+                {# ✅ Colonne Photo (miniature) #}
+                <td>
+                    {% if sortie.photoFilename %}
+                        {% set filename = sortie.photoFilename %}
+                        {% set base = filename|split('.')|slice(0, -1)|join('.') %}
+                        {% set thumb = base ~ '.jpg' %}
+
+                        <img
+                                src="{{ asset('uploads/sorties/thumbs/' ~ thumb) }}"
+                                alt="Miniature sortie"
+                                loading="lazy"
+                                style="width:70px; height:70px; object-fit:cover; border-radius:10px;"
+                                onerror="this.onerror=null;this.src='{{ asset('uploads/sorties/' ~ filename) }}';"
+                        >
+                    {% endif %}
+                </td>
+
                 <td>{{ sortie.nom }}</td>
                 <td>{{ sortie.dateHeureDebut|date('d-m-Y H:i') }}</td>
                 <td>{{ sortie.dateLimiteInscription|date('d-m-Y') }}</td>
@@ -123,10 +187,33 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="8">Aucune sortie disponible</td>
+                <td colspan="9">Aucune sortie disponible</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
+
+    {# Affichage de la pagination #}
+    {% if totalPages > 1 %}
+        <div class="pagination">
+            {% if currentPage > 1 %}
+                <a href="{{ path('sortie_list', app.request.query.all|merge({'page': 1})) }}">« Première</a>
+                <a href="{{ path('sortie_list', app.request.query.all|merge({'page': currentPage - 1})) }}">‹ Précédent</a>
+            {% endif %}
+
+            {% for page in 1..totalPages %}
+                {% if page == currentPage %}
+                    <strong>{{ page }}</strong>
+                {% else %}
+                    <a href="{{ path('sortie_list', app.request.query.all|merge({'page': page})) }}">{{ page }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if currentPage < totalPages %}
+                <a href="{{ path('sortie_list', app.request.query.all|merge({'page': currentPage + 1})) }}">Suivant ›</a>
+                <a href="{{ path('sortie_list', app.request.query.all|merge({'page': totalPages})) }}">Dernière »</a>
+            {% endif %}
+        </div>
+    {% endif %}
 
 {% endblock %}

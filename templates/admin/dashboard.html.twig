@@ -1,19 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Administration{% endblock %}
+{% block title %}
+    Sorties | {{ parent() }}
+{% endblock %}
 
 {% block body %}
     <h1 class="text-center">Page d'administration</h1>
-
     <div>
-        <ul>
-            <li><a href="{{ path('admin_admin_users') }}">Gérer les utilisateurs</a></li>
-            <li><a href="{{ path('admin_campus') }}">Gérer les campus</a></li>
-            <li><a href="{{ path('admin_villes') }}">Gérer les villes</a></li>
-        </ul>
+        <a class="btn btn-primary" href="{{ path('site_list') }}">Gérer les campus</a>
+        <a class="btn btn-primary" href="{{ path('ville_list') }}">Gérer les villes</a>
+        <a class="btn btn-primary" href="{{ path('admin_users') }}">Gérer les utilisateurs</a>
     </div>
-
-    {% if is_granted('ROLE_ADMIN') %}
-        Sorties | {{ parent() }}
-    {% endif %}
 {% endblock %}
