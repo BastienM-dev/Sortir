@@ -78,4 +78,42 @@ class ParticipantRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Recherche des utilisateurs selon plusieurs critères optionnels :
+     * - un texte libre (pseudo, nom, prénom ou email)
+     * - le statut actif (actif / inactif)
+     * - le rôle administrateur (admin / non admin)
+     *
+     * @param string|null $q     Texte de recherche (facultatif)
+     * @param string|null $actif "1" ou "0" pour filtrer les comptes actifs/inactifs
+     * @param string|null $admin "1" ou "0" pour filtrer les administrateurs
+     *
+     * @return array Liste des utilisateurs correspondant aux critères
+     */
+    public function searchUsers(?string $q, ?string $actif, ?string $admin): array
+    {
+        $qb = $this->createQueryBuilder('p');
+
+        if ($q) {
+            $qb->andWhere('p.pseudo LIKE :q OR p.nom LIKE :q OR p.prenom LIKE :q OR p.mail LIKE :q')
+                ->setParameter('q', '%'.$q.'%');
+        }
+
+        if ($actif === '1' || $actif === '0') {
+            $qb->andWhere('p.actif = :actif')
+                ->setParameter('actif', $actif === '1');
+        }
+
+        if ($admin === '1' || $admin === '0') {
+            $qb->andWhere('p.administrateur = :admin')
+                ->setParameter('admin', $admin === '1');
+        }
+
+        return $qb->orderBy('p.nom', 'ASC')
+            ->addOrderBy('p.prenom', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+
 }

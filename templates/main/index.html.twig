@@ -1,72 +1,118 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Accueil{% endblock %}
+{# Titre de l’onglet / page #}
+{% block title %}Mon profil{% endblock %}
+
+{# Inclusion d’un CSS spécifique à cette page #}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/edit.css') }}">
+{% endblock %}
 
 {% block body %}
-    <h1>Liste des sorties</h1>
+    <div class="profile-page">
+        <h1 class="profile-title">Mon profil</h1>
 
-    {% for message in app.flashes('success') %}
-        <div style="padding:10px; margin:10px 0; border:1px solid #2ecc71;">
-            {{ message }}
+        {# 1) Affichage des messages flash "success"
+           -> ajoutés côté contrôleur après un enregistrement réussi (ex: addFlash('success', '...')) #}
+        {% for message in app.flashes('success') %}
+            <div class="profile-success">{{ message }}</div>
+        {% endfor %}
+
+        {# (Optionnel mais utile) Afficher aussi les erreurs flash #}
+        {% for message in app.flashes('error') %}
+            <div class="profile-error">{{ message }}</div>
+        {% endfor %}
+
+        <div class="profile-grid">
+
+            {# 2) Zone photo (fusion : affichage + lien vers page photo dédiée) #}
+            <div class="profile-photo">
+
+                {# On utilise photoFilename car ton controller fait : setPhotoFilename(...) #}
+                {% set photoName = app.user.photoFilename ?? null %}
+
+                <div class="photo-box">
+                    {% if photoName %}
+                        <img
+                                src="{{ asset('uploads/photos/' ~ photoName) }}"
+                                alt="Photo de profil"
+                                class="profile-img"
+                        >
+                    {% else %}
+                        {# Placeholder si pas encore de photo #}
+                        <div class="photo-placeholder">Photo</div>
+                    {% endif %}
+                </div>
+
+                {# Lien vers la route existante de ta collègue #}
+                <div class="actions">
+                    <a class="btn-save" href="{{ path('profil_photo_edit') }}">
+                        Changer la photo
+                    </a>
+                </div>
+            </div>
+
+            <div class="profile-form">
+                {# 3) Début du formulaire Symfony (ouvre la balise <form> + token CSRF, etc.) #}
+                {{ form_start(profileForm) }}
+
+                {# 4) Champ "Campus" affiché en lecture seule #}
+                <div class="row">
+                    <label>Campus</label>
+                    <input type="text" value="{{ app.user.site.nom ?? '' }}" disabled>
+                </div>
+
+                {# 5) Champs éditables : pseudo #}
+                <div class="row">
+                    {{ form_label(profileForm.pseudo) }}
+                    {{ form_widget(profileForm.pseudo) }}
+                    {{ form_errors(profileForm.pseudo) }}
+                </div>
+
+                {# 6) Prénom #}
+                <div class="row">
+                    {{ form_label(profileForm.prenom) }}
+                    {{ form_widget(profileForm.prenom) }}
+                    {{ form_errors(profileForm.prenom) }}
+                </div>
+
+                {# 7) Nom #}
+                <div class="row">
+                    {{ form_label(profileForm.nom) }}
+                    {{ form_widget(profileForm.nom) }}
+                    {{ form_errors(profileForm.nom) }}
+                </div>
+
+                {# 8) Téléphone #}
+                <div class="row">
+                    {{ form_label(profileForm.telephone) }}
+                    {{ form_widget(profileForm.telephone) }}
+                    {{ form_errors(profileForm.telephone) }}
+                </div>
+
+                {# 9) Email #}
+                <div class="row">
+                    {{ form_label(profileForm.mail) }}
+                    {{ form_widget(profileForm.mail) }}
+                    {{ form_errors(profileForm.mail) }}
+                </div>
+
+                {# 10) Nouveau mot de passe #}
+                <div class="row">
+                    <label for="{{ profileForm.plainPassword.vars.id }}">Nouveau mot de passe</label>
+                    {{ form_widget(profileForm.plainPassword) }}
+                    {{ form_errors(profileForm.plainPassword) }}
+                </div>
+
+                {# 11) Action principale : bouton submit #}
+                <div class="actions">
+                    <button class="btn-save" type="submit">Enregistrer</button>
+                </div>
+
+                {# 12) Fin du formulaire #}
+                {{ form_end(profileForm) }}
+            </div>
+
         </div>
-    {% endfor %}
-
-    {% for message in app.flashes('error') %}
-        <div style="padding:10px; margin:10px 0; border:1px solid #e74c3c;">
-            {{ message }}
-        </div>
-    {% endfor %}
-
-    {% if sorties is not defined or sorties is empty %}
-        <p>Aucune sortie pour le moment.</p>
-    {% else %}
-        <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse:collapse;">
-            <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Date</th>
-                <th>Organisateur</th>
-                <th>État</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for sortie in sorties %}
-                <tr>
-                    <td>{{ sortie.nom }}</td>
-                    <td>
-                        {% if sortie.dateHeureDebut %}
-                            {{ sortie.dateHeureDebut|date('d/m/Y H:i') }}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if sortie.organisateur %}
-                            <a href="{{ path('participant_show', { id: sortie.organisateur.id }) }}">
-                                {{ sortie.organisateur.pseudo }}
-                            </a>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if sortie.etat %}
-                            {{ sortie.etat.libelle }}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {# Bouton Modifier uniquement si connecté + organisateur + En création #}
-                        {% if app.user
-                            and sortie.organisateur
-                            and sortie.organisateur.id == app.user.id
-                            and sortie.etat
-                            and sortie.etat.libelle == 'En création'
-                        %}
-                            <a href="{{ path('sortie_edit', { id: sortie.id }) }}">
-                                Modifier
-                            </a>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+    </div>
 {% endblock %}

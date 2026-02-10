@@ -5,8 +5,20 @@
 {% block body %}
     <h1>Changer ma photo de profil</h1>
 
-    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+    {# Flash messages #}
+    {% for message in app.flashes('success') %}
+        <div class="profile-success">{{ message }}</div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div class="profile-error">{{ message }}</div>
+    {% endfor %}
+
+    {# Symfony ajoute automatiquement enctype="multipart/form-data" avec FileType,
+       donc pas besoin de forcer l'attribut #}
+    {{ form_start(form) }}
     {{ form_row(form.photo) }}
+
     <button type="submit">Enregistrer</button>
+    <a href="{{ path('profil_edit') }}">Retour au profil</a>
     {{ form_end(form) }}
 {% endblock %}
