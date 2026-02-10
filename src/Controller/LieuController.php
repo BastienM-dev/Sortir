@@ -12,8 +12,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/admin/lieu', name: 'admin_lieu_')]
+#[Route('/lieu', name: 'lieu_')]
 class LieuController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $em)
@@ -24,10 +25,9 @@ class LieuController extends AbstractController
      * Liste tous les lieux
      */
     #[Route('/', name: 'list', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
     public function list(LieuRepository $lieuRepository): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_USER');
-
         $lieux = $lieuRepository->findAll();
 
         return $this->render('lieu/list.html.twig', [
@@ -39,10 +39,9 @@ class LieuController extends AbstractController
      * Créer un nouveau lieu
      */
     #[Route('/creer', name: 'create', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
     public function create(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $lieu = new Lieu();
         $form = $this->createForm(LieuType::class, $lieu);
         $form->handleRequest($request);
@@ -53,7 +52,7 @@ class LieuController extends AbstractController
 
             $this->addFlash('success', 'Le lieu "' . $lieu->getNom() . '" a été créé avec succès.');
 
-            return $this->redirectToRoute('admin_lieu_list');
+            return $this->redirectToRoute('lieu_list');
         }
 
         return $this->render('lieu/create.html.twig', [
@@ -65,10 +64,9 @@ class LieuController extends AbstractController
      * Modifier un lieu existant
      */
     #[Route('/{id}/modifier', name: 'edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function edit(Lieu $lieu, Request $request): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $form = $this->createForm(LieuType::class, $lieu);
         $form->handleRequest($request);
 
@@ -77,7 +75,7 @@ class LieuController extends AbstractController
 
             $this->addFlash('success', 'Le lieu "' . $lieu->getNom() . '" a été modifié avec succès.');
 
-            return $this->redirectToRoute('admin_lieu_list');
+            return $this->redirectToRoute('lieu_list');
         }
 
         return $this->render('lieu/edit.html.twig', [
@@ -90,14 +88,13 @@ class LieuController extends AbstractController
      * Supprimer un lieu
      */
     #[Route('/{id}/supprimer', name: 'delete', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function delete(Lieu $lieu): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         // Vérifier si le lieu est utilisé par des sorties
         if ($lieu->getSorties()->count() > 0) {
             $this->addFlash('error', 'Impossible de supprimer ce lieu car il est utilisé par des sorties.');
-            return $this->redirectToRoute('admin_lieu_list');
+            return $this->redirectToRoute('lieu_list');
         }
 
         $nom = $lieu->getNom();
@@ -106,6 +103,6 @@ class LieuController extends AbstractController
 
         $this->addFlash('success', 'Le lieu "' . $nom . '" a été supprimé avec succès.');
 
-        return $this->redirectToRoute('admin_lieu_list');
+        return $this->redirectToRoute('lieu_list');
     }
 }
