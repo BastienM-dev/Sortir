@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Modifier {{ site.nom }} | {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    <h1>Modifier le campus</h1>
+
+    {{ form_start(siteForm) }}
+    {{ form_row(siteForm.nom) }}
+
+    <button class="btn btn-primary">Enregistrer</button>
+    {{ form_end(siteForm) }}
+
+    <a href="{{ path('site_list') }}">← Retour à la liste</a>
+{% endblock %}
