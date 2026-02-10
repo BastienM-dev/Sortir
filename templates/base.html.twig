@@ -33,6 +33,28 @@
         </div>
     </header>
 
+    {% if app.user %}
+        <nav class="main-nav">
+            <a href="{{ path('main_index') }}">Accueil</a>
+
+            <a href="{{ path('participant_show', {'id': app.user.id}) }}">
+                Mon profil
+            </a>
+
+
+            <a href="{{ path('sortie_create') }}">
+                Créer une sortie
+            </a>
+
+            {% if is_granted('ROLE_ADMIN') %}
+                {# Lien admin si vous en avez plus tard #}
+                {# <a href="{{ path('admin_index') }}">Admin</a> #}
+            {% endif %}
+
+        </nav>
+    {% endif %}
+
+
     <main class="page-content">
         {% block body %}{% endblock %}
     </main>
