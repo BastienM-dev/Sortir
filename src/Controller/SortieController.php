@@ -106,7 +106,7 @@ class SortieController extends AbstractController
             $em->persist($sortie);
             $em->flush();
 
-            return $this->redirectToRoute('sortie_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         return $this->render('sortie/create.html.twig', [
@@ -146,7 +146,7 @@ class SortieController extends AbstractController
                 'error',
                 "Impossible de modifier : la sortie n'est plus en création."
             );
-            return $this->redirectToRoute('sortie_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         $form = $this->createForm(SortieType::class, $sortie);
@@ -391,6 +391,11 @@ class SortieController extends AbstractController
     #[Route('/', name:'sortie_list', methods: ['GET'])]
     public function list(SortieRepository $sortieRepository, SiteRepository $siteRepository, Request $request): Response
     {
+        if (!$this->isGranted('ROLE_USER')) {
+            $this->addFlash('error', 'Pour accéder à la liste des sorties, veuillez vous connecter.');
+
+            return $this->redirectToRoute('app_login');
+        }
 
         /** @var \App\Entity\Participant $user */
         $user = $this->getUser();
@@ -398,10 +403,7 @@ class SortieController extends AbstractController
 
         if(!$siteList) {
             throw $this->createNotFoundException('Pas de campus trouvés.');
-        }
-        if(!$user) {
-            $site = $siteRepository->findFirstAlphabetical();
-        } else {
+        }else{
             $site = $user->getSite();
         }
 
@@ -410,32 +412,34 @@ class SortieController extends AbstractController
         $limit = 15;
         $offset = ($page - 1) * $limit;
 
-        if($request->query->count() === 0){
-            // Affichage par défaut : toutes les sorties du site, paginées
-            $qb = $sortieRepository->createQueryBuilder('s')
-                ->innerJoin('s.etat', 'e')
-                ->andWhere('s.site = :site')
-                ->setParameter('site', $site);
 
-            // Afficher les sorties publiques + "En création" de l'utilisateur
-            if($user){
-                $qb->andWhere(
-                    $qb->expr()->orX(
-                        $qb->expr()->neq('e.libelle', ':etatCreation'),
-                        $qb->expr()->andX(
-                            $qb->expr()->eq('e.libelle', ':etatCreation'),
-                            $qb->expr()->eq('s.organisateur', ':currentUser')
-                        )
-                    )
+        // Affichage par défaut : toutes les sorties du site, paginées
+        $qb = $sortieRepository->createQueryBuilder('s')
+            ->innerJoin('s.etat', 'e')
+            ->andWhere('s.site = :site')
+            ->setParameter('site', $site);
+
+        // Afficher les sorties publiques + "En création" de l'utilisateur
+
+        $qb->andWhere(
+            $qb->expr()->orX(
+                $qb->expr()->neq('e.libelle', ':etatCreation'),
+                $qb->expr()->andX(
+                    $qb->expr()->eq('e.libelle', ':etatCreation'),
+                    $qb->expr()->eq('s.organisateur', ':currentUser')
                 )
-                    ->setParameter('etatCreation', 'En création')
-                    ->setParameter('currentUser', $user);
-            } else {
-                $qb->andWhere('e.libelle != :etatCreation')
-                    ->setParameter('etatCreation', 'En création');
-            }
+            )
+        )
+            ->setParameter('etatCreation', 'En création')
+            ->setParameter('currentUser', $user);
 
-            $qb->orderBy('s.dateHeureDebut', 'ASC');
+
+        $qb->orderBy('s.dateHeureDebut', 'ASC');
+
+
+
+        if($request->query->count() === 0){
+
 
             // Compter le total
             $qbCount = clone $qb;
@@ -460,43 +464,21 @@ class SortieController extends AbstractController
             $nonInscrit = $request->query->get('non_inscrit');
             $terminees = $request->query->get('terminees');
 
-            $qb = $sortieRepository->createQueryBuilder('s')
-                ->innerJoin('s.etat', 'e')
-                ->leftJoin('s.lieu', 'l')
-                ->leftJoin('l.ville', 'v')
-                ->leftJoin('s.organisateur', 'org')
-                ->andWhere('s.site = :siteId')
-                ->setParameter('siteId', $siteId);
-            // Logique : afficher toutes les sorties publiques + les sorties "En création" de l'utilisateur
-            if($user){
-                $qb->andWhere(
-                    $qb->expr()->orX(
-                    // Soit la sortie n'est PAS en création (= elle est publique)
-                        $qb->expr()->neq('e.libelle', ':etatCreation'),
-                        // Soit elle EST en création mais l'utilisateur est l'organisateur
-                        $qb->expr()->andX(
-                            $qb->expr()->eq('e.libelle', ':etatCreation'),
-                            $qb->expr()->eq('s.organisateur', ':currentUser')
-                        )
-                    )
-                )
-                    ->setParameter('etatCreation', 'En création')
 
-                    ->setParameter('currentUser', $user);
-            } else {
-                // Si pas connecté, ne JAMAIS afficher les sorties "En création"
-                $qb->andWhere('e.libelle != :etatCreation')
-                    ->setParameter('etatCreation', 'En création');
-            }
+
+            $qb->andWhere('s.site = :siteId')
+                ->setParameter('siteId', $siteId);
+
 
             if($startDate){
-                $startDate = \DateTimeImmutable::createFromFormat('Y-m-d', $startDate);
+                $startDate = \DateTime::createFromFormat('Y-m-d', $startDate);
                 $qb->andWhere('s.dateHeureDebut > :startDate')
                     ->setParameter('startDate', $startDate);
             }
             if($endDate){
-                $endDate = \DateTimeImmutable::createFromFormat('Y-m-d', $endDate);
-                $qb->andWhere('s.dateLimiteInscription < :endDate')->setParameter('endDate', $endDate);
+                $endDate = \DateTime::createFromFormat('Y-m-d', $endDate);
+                $qb->andWhere('s.dateHeureDebut < :endDate')
+                    ->setParameter('endDate', $endDate);
             }
             if($organisateur){
                 $qb->andWhere('s.organisateur = :organisateur')
@@ -511,13 +493,7 @@ class SortieController extends AbstractController
                     ->setParameter('user', $user);
             }
             if ($searchText) {
-                $qb->andWhere('
-                    LOWER(s.nom) LIKE LOWER(:searchText)
-                    OR LOWER(s.infosSortie) LIKE LOWER(:searchText)
-                    OR LOWER(l.nom) LIKE LOWER(:searchText)
-                    OR LOWER(v.nom) LIKE LOWER(:searchText)
-                    OR LOWER(org.pseudo) LIKE LOWER(:searchText)
-                ')
+                $qb->andWhere('LOWER(s.nom) LIKE LOWER(:searchText)')
                 ->setParameter('searchText', '%' . $searchText . '%');
             }
 
