@@ -403,8 +403,6 @@ class SortieController extends AbstractController
 
         if(!$siteList) {
             throw $this->createNotFoundException('Pas de campus trouvés.');
-        }else{
-            $site = $user->getSite();
         }
 
         // Pagination
@@ -415,9 +413,7 @@ class SortieController extends AbstractController
 
         // Affichage par défaut : toutes les sorties du site, paginées
         $qb = $sortieRepository->createQueryBuilder('s')
-            ->innerJoin('s.etat', 'e')
-            ->andWhere('s.site = :site')
-            ->setParameter('site', $site);
+            ->innerJoin('s.etat', 'e');
 
         // Afficher les sorties publiques + "En création" de l'utilisateur
 
@@ -439,6 +435,9 @@ class SortieController extends AbstractController
 
 
         if($request->query->count() === 0){
+            $site = $user->getSite();
+            $qb->andWhere('s.site = :site')
+                ->setParameter('site', $site);
 
 
             // Compter le total
@@ -455,7 +454,7 @@ class SortieController extends AbstractController
 
 
         } else {
-            $siteId = $request->query->get('site') ?: $site->getId();
+            $site = $request->query->get('site');
             $searchText = $request->query->get('search');
             $startDate = $request->query->get('date_from');
             $endDate = $request->query->get('date_to');
@@ -467,7 +466,7 @@ class SortieController extends AbstractController
 
 
             $qb->andWhere('s.site = :siteId')
-                ->setParameter('siteId', $siteId);
+                ->setParameter('siteId', $site);
 
 
             if($startDate){
@@ -484,12 +483,17 @@ class SortieController extends AbstractController
                 $qb->andWhere('s.organisateur = :organisateur')
                     ->setParameter('organisateur', $user);
             }
+
+            if($nonInscrit || $inscrit){
+                $qb->leftJoin('s.inscriptions', 'i', 'WITH', 'i.participant = :user');
+            }
             if($inscrit){
-                $qb->andWhere(':user MEMBER OF s.inscriptions')
+                $qb->andWhere('i.participant IS NOT NULL')
                     ->setParameter('user', $user);
             }
+
             if($nonInscrit){
-                $qb->andWhere(':user NOT MEMBER OF s.inscriptions')
+                $qb->andWhere('i.participant IS NULL')
                     ->setParameter('user', $user);
             }
             if ($searchText) {
@@ -533,6 +537,9 @@ class SortieController extends AbstractController
 
         // Calcul du nombre de pages
         $totalPages = (int) ceil($totalSorties / $limit);
+
+
+
 
         return $this->render('sortie/list.html.twig', [
             'sortieList' => $sortieList,
