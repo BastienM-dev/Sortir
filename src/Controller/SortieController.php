@@ -106,7 +106,7 @@ class SortieController extends AbstractController
             $em->persist($sortie);
             $em->flush();
 
-            return $this->redirectToRoute('sortie_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         return $this->render('sortie/create.html.twig', [
@@ -146,7 +146,7 @@ class SortieController extends AbstractController
                 'error',
                 "Impossible de modifier : la sortie n'est plus en création."
             );
-            return $this->redirectToRoute('sortie_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         $form = $this->createForm(SortieType::class, $sortie);
@@ -413,6 +413,7 @@ class SortieController extends AbstractController
         if($request->query->count() === 0){
             // Affichage par défaut : toutes les sorties du site, paginées
             $qb = $sortieRepository->createQueryBuilder('s')
+                ->distinct()
                 ->innerJoin('s.etat', 'e')
                 ->andWhere('s.site = :site')
                 ->setParameter('site', $site);
@@ -439,7 +440,7 @@ class SortieController extends AbstractController
 
             // Compter le total
             $qbCount = clone $qb;
-            $totalSorties = (int) $qbCount->select('COUNT(s.id)')
+            $totalSorties = (int) $qbCount->select('COUNT(DISTINCT s.id)')
                 ->getQuery()
                 ->getSingleScalarResult();
 
@@ -461,6 +462,7 @@ class SortieController extends AbstractController
             $terminees = $request->query->get('terminees');
 
             $qb = $sortieRepository->createQueryBuilder('s')
+                ->distinct()
                 ->innerJoin('s.etat', 'e')
                 ->andWhere('s.site = :siteId')
                 ->setParameter('siteId', $siteId);
@@ -500,11 +502,13 @@ class SortieController extends AbstractController
                     ->setParameter('organisateur', $user);
             }
             if($inscrit){
-                $qb->andWhere(':user MEMBER OF s.inscriptions')
+                $qb->innerJoin('s.inscriptions', 'insc')
+                    ->andWhere('insc.participant = :user')
                     ->setParameter('user', $user);
             }
             if($nonInscrit){
-                $qb->andWhere(':user NOT MEMBER OF s.inscriptions')
+                $qb->leftJoin('s.inscriptions', 'ninsc', 'WITH', 'ninsc.participant = :user')
+                    ->andWhere('ninsc IS NULL')
                     ->setParameter('user', $user);
             }
             if ($searchText) {
@@ -542,7 +546,7 @@ class SortieController extends AbstractController
 
             // Compter le total
             $qbCount = clone $qb;
-            $totalSorties = (int) $qbCount->select('COUNT(s.id)')
+            $totalSorties = (int) $qbCount->select('COUNT(DISTINCT s.id)')
                 ->getQuery()
                 ->getSingleScalarResult();
 
