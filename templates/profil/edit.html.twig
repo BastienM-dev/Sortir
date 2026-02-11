@@ -18,11 +18,34 @@
             <div class="profile-success">{{ message }}</div>
         {% endfor %}
 
+        {# (Optionnel) Affichage des messages flash "error" si tu en ajoutes côté contrôleur #}
+        {% for message in app.flashes('error') %}
+            <div class="profile-error">{{ message }}</div>
+        {% endfor %}
+
         <div class="profile-grid">
 
-            {# 2) Zone photo (itération 1 : pas de gestion de photo, donc placeholder) #}
+            {# 2) Zone photo (affichage + lien vers /profil/photo) #}
             <div class="profile-photo">
-                <div class="photo-box">Photo</div>
+                {% set photoName = app.user.photoFilename ?? null %}
+
+                <div class="photo-box">
+                    {% if photoName %}
+                        <img
+                                src="{{ asset('uploads/photos/' ~ photoName) }}"
+                                alt="Photo de profil"
+                                class="profile-img"
+                        >
+                    {% else %}
+                        <div class="photo-placeholder">Photo</div>
+                    {% endif %}
+                </div>
+
+                <div class="actions">
+                    <a class="btn-save" href="{{ path('profil_photo_edit') }}">
+                        Changer la photo
+                    </a>
+                </div>
             </div>
 
             <div class="profile-form">
