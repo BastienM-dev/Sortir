@@ -57,11 +57,6 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $actif = true;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\File(
-        maxSize: "2M",
-        mimeTypes: ["image/jpeg", "image/png", "image/webp"],
-        mimeTypesMessage: "Merci d’uploader une image valide (jpg, png, webp)"
-    )]
     private ?string $photoFilename = null;
 
     #[ORM\ManyToOne(inversedBy: 'participants')]
