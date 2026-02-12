@@ -9,86 +9,115 @@
 
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background-color: #ffffff;
+    background: #fff;
     color: #000;
 }
 
 /* =========================
-   HEADER (maquette)
+   LAYOUT GLOBAL
 ========================= */
-header {
-    width: 100%;
-    border-bottom: 2px solid #000;
-}
-
-/* Barre navigateur (grise dans la maquette) */
-.header-top {
-    background-color: #d3d3d3;
-    padding: 8px 16px;
-    border-bottom: 2px solid #000;
-    text-align: center;
-    font-weight: bold;
-}
-
-/* Zone logo + titre */
-.header-main {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 24px;
-}
-
-/* Logo carré */
-.logo {
-    width: 60px;
-    height: 60px;
-    border: 2px solid #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* Titre */
-.site-title {
-    font-size: 28px;
-    font-weight: bold;
-}
-
-/* Zone utilisateur (logout) */
-.user-actions {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.user-actions a {
-    text-decoration: none;
-    color: #000;
-    font-weight: bold;
-}
-
-.user-actions a:hover {
-    text-decoration: underline;
-}
-
-.user-actions .sep {
-    margin: 0 6px;
-    color: #555;
-}
-
-/* =========================
-   CONTENU PRINCIPAL
-========================= */
+main.page-content,
 main {
     padding: 40px;
     min-height: calc(100vh - 140px);
 }
 
+footer {
+    padding: 14px 0;
+    text-align: center;
+    font-size: 13px;
+}
+
 /* =========================
-   LIENS
+   NAVBAR PROPRE & PROPORTIONNELLE
+========================= */
+
+.site-header {
+    width: 100%;
+    background: rgb(0, 64, 122);
+    color: #fff;
+}
+
+/* Conteneur centré */
+.nav-container {
+    width: 100%;
+    padding: 12px 40px;   /* plus d’air */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-width: 220px; /* garde le logo stable */
+}
+
+
+/* Logo plus collé à gauche */
+.nav-logo {
+    width: 80px;
+    height: 80px;
+    margin-left: 0;   /* collé bord */
+}
+
+/* Titre plus grand et plus présent */
+.nav-brand {
+    font-size: 30px;  /* 🔥 plus grand */
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #fff;
+}
+
+.nav-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;   /* au lieu de center */
+    margin-left: 600px;            /* ajuste ici */
+    gap: 25px;
+    align-items: center;
+}
+
+
+/* Email */
+.nav-user {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: 0.2s ease;
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,0.15);
+}
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .nav-right {
+        justify-content: center;
+    }
+
+    main.page-content,
+    main {
+        padding: 24px;
+    }
+}
+
+/* =========================
+   LIENS (hors navbar)
 ========================= */
 a {
     color: #0066cc;
@@ -97,3 +126,91 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+/* =========================
+   THEME SORTIR : overrides Bootstrap
+   -> look "maquette" (bordures noires, shadow)
+========================= */
+
+/* Champs */
+.form-control,
+.form-select {
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #000;
+    box-shadow: none;
+}
+
+.form-control:disabled,
+.form-select:disabled {
+    background: #f3f3f3;
+}
+
+/* Alerts */
+.alert {
+    border: 3px solid #000;
+    border-radius: 0;
+    font-weight: bold;
+}
+
+/* Bouton Sortir (réutilisable partout) */
+.btn-sortir {
+    border: 3px solid #000;
+    background: #fff;
+    font-weight: bold;
+    box-shadow: 4px 4px 0 #000;
+    border-radius: 0;
+    padding: 10px 22px;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.btn-sortir:hover {
+    transform: translateY(-1px);
+}
+
+/* Avatar rond (profil) */
+.avatar-round {
+    border-radius: 50%;
+    border: 3px solid #000;
+    object-fit: cover;
+    display: inline-block;
+}
+
+/* Placeholder avatar */
+.avatar-placeholder {
+    width: 200px;
+    height: 200px;
+    border: 3px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin: 0 auto;
+}
+
+/* HR style maquette */
+hr {
+    border-top: 2px solid #000;
+    opacity: 1;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+/*.site-footer {
+    background: rgb(0, 64, 122);
+    color: #fff;
+    padding: 12px 0;
+    text-align: center;
+    font-size: 13px;
+}*/
+
