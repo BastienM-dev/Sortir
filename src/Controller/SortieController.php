@@ -405,10 +405,10 @@ class SortieController extends AbstractController
             throw $this->createNotFoundException('Pas de campus trouvés.');
         }
 
-        // Pagination
-        $page = max(1, $request->query->getInt('page', 1));
-        $limit = 15;
-        $offset = ($page - 1) * $limit;
+//        // Pagination
+//        $page = max(1, $request->query->getInt('page', 1));
+//        $limit = 15;
+//        $offset = ($page - 1) * $limit;
 
 
         // Affichage par défaut : toutes les sorties du site, paginées
@@ -440,17 +440,17 @@ class SortieController extends AbstractController
                 ->setParameter('site', $site);
 
 
-            // Compter le total
-            $qbCount = clone $qb;
-            $totalSorties = (int) $qbCount->select('COUNT(s.id)')
-                ->getQuery()
-                ->getSingleScalarResult();
-
-            // Appliquer pagination
-            $sortieList = $qb->setFirstResult($offset)
-                ->setMaxResults($limit)
-                ->getQuery()
-                ->getResult();
+//            // Compter le total
+//            $qbCount = clone $qb;
+//            $totalSorties = (int) $qbCount->select('COUNT(s.id)')
+//                ->getQuery()
+//                ->getSingleScalarResult();
+//
+//            // Appliquer pagination
+//            $sortieList = $qb->setFirstResult($offset)
+//                ->setMaxResults($limit)
+//                ->getQuery()
+//                ->getResult();
 
 
         } else {
@@ -464,41 +464,40 @@ class SortieController extends AbstractController
             $terminees = $request->query->get('terminees');
 
 
-
             $qb->andWhere('s.site = :siteId')
                 ->setParameter('siteId', $site);
 
 
-            if($startDate){
+            if ($startDate) {
                 $startDate = \DateTime::createFromFormat('Y-m-d', $startDate);
                 $qb->andWhere('s.dateHeureDebut > :startDate')
                     ->setParameter('startDate', $startDate);
             }
-            if($endDate){
+            if ($endDate) {
                 $endDate = \DateTime::createFromFormat('Y-m-d', $endDate);
                 $qb->andWhere('s.dateHeureDebut < :endDate')
                     ->setParameter('endDate', $endDate);
             }
-            if($organisateur){
+            if ($organisateur) {
                 $qb->andWhere('s.organisateur = :organisateur')
                     ->setParameter('organisateur', $user);
             }
 
-            if($nonInscrit || $inscrit){
+            if ($nonInscrit || $inscrit) {
                 $qb->leftJoin('s.inscriptions', 'i', 'WITH', 'i.participant = :user');
             }
-            if($inscrit){
+            if ($inscrit) {
                 $qb->andWhere('i.participant IS NOT NULL')
                     ->setParameter('user', $user);
             }
 
-            if($nonInscrit){
+            if ($nonInscrit) {
                 $qb->andWhere('i.participant IS NULL')
                     ->setParameter('user', $user);
             }
             if ($searchText) {
                 $qb->andWhere('LOWER(s.nom) LIKE LOWER(:searchText)')
-                ->setParameter('searchText', '%' . $searchText . '%');
+                    ->setParameter('searchText', '%' . $searchText . '%');
             }
 
             if ($terminees) {
@@ -506,49 +505,50 @@ class SortieController extends AbstractController
                     ->setParameter('etatTerminee', 'Terminée');
             }
 
-            // Gestion du tri
-            $sortBy = $request->query->get('sort', 'dateHeureDebut'); // Colonne par défaut
-            $order = $request->query->get('order', 'ASC'); // Ordre par défaut
+//            // Gestion du tri
+//            $sortBy = $request->query->get('sort', 'dateHeureDebut'); // Colonne par défaut
+//            $order = $request->query->get('order', 'ASC'); // Ordre par défaut
+//
+//            // Sécurité : colonnes autorisées pour le tri
+//            $allowedSorts = ['nom', 'dateHeureDebut', 'dateLimiteInscription', 'nbInscriptionsMax'];
+//            if (!in_array($sortBy, $allowedSorts)) {
+//                $sortBy = 'dateHeureDebut';
+//            }
+//
+//            // Sécurité : ordre ASC ou DESC uniquement
+//            $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
+//
+//            // Application du tri
+//            $qb->orderBy('s.' . $sortBy, $order);
+//
+//            // Compter le total
+//            $qbCount = clone $qb;
+//            $totalSorties = (int) $qbCount->select('COUNT(s.id)')
+//                ->getQuery()
+//                ->getSingleScalarResult();
+//
+//            // Appliquer pagination
+//            $sortieList = $qb->setFirstResult($offset)
+//                ->setMaxResults($limit)
+//                ->getQuery()
+//                ->getResult();
+//        }
+//
+//        // Calcul du nombre de pages
+//        $totalPages = (int) ceil($totalSorties / $limit);
 
-            // Sécurité : colonnes autorisées pour le tri
-            $allowedSorts = ['nom', 'dateHeureDebut', 'dateLimiteInscription', 'nbInscriptionsMax'];
-            if (!in_array($sortBy, $allowedSorts)) {
-                $sortBy = 'dateHeureDebut';
-            }
 
-            // Sécurité : ordre ASC ou DESC uniquement
-            $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
-
-            // Application du tri
-            $qb->orderBy('s.' . $sortBy, $order);
-
-            // Compter le total
-            $qbCount = clone $qb;
-            $totalSorties = (int) $qbCount->select('COUNT(s.id)')
-                ->getQuery()
-                ->getSingleScalarResult();
-
-            // Appliquer pagination
-            $sortieList = $qb->setFirstResult($offset)
-                ->setMaxResults($limit)
-                ->getQuery()
-                ->getResult();
         }
-
-        // Calcul du nombre de pages
-        $totalPages = (int) ceil($totalSorties / $limit);
-
-
-
+        $sortieList = $qb->getQuery()->getResult();
 
         return $this->render('sortie/list.html.twig', [
             'sortieList' => $sortieList,
             'siteList' => $siteList,
             'user' => $user,
             'site' => $site,
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
-            'totalSorties' => $totalSorties,
+//            'currentPage' => $page,
+//            'totalPages' => $totalPages,
+//            'totalSorties' => $totalSorties,
         ]);
     }
 

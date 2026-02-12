@@ -134,48 +134,51 @@
         <tr>
 {#            <th>Photo</th>#}
             <th>
-                <a href="{{ path('sortie_list', app.request.query.all|merge({
-                    'sort': 'nom',
-                    'order': (app.request.query.get('sort') == 'nom' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'
-                })) }}">
+{#                <a href="{{ path('sortie_list', app.request.query.all|merge({#}
+{#                    'sort': 'nom',#}
+{#                    'order': (app.request.query.get('sort') == 'nom' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'#}
+{#                })) }}">#}
                     Nom de la sortie
-                    {% if app.request.query.get('sort') == 'nom' %}
-                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}
-                    {% endif %}
+{#                    {% if app.request.query.get('sort') == 'nom' %}#}
+{#                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}#}
+{#                    {% endif %}#}
                 </a>
             </th>
             <th>
-                <a href="{{ path('sortie_list', app.request.query.all|merge({
-                    'sort': 'dateHeureDebut',
-                    'order': (app.request.query.get('sort') == 'dateHeureDebut' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'
-                })) }}">
-                    Date de la sortie
-                    {% if app.request.query.get('sort') == 'dateHeureDebut' %}
-                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}
-                    {% endif %}
-                </a>
+                Date de la sortie
+{#                <a href="{{ path('sortie_list', app.request.query.all|merge({#}
+{#                    'sort': 'dateHeureDebut',#}
+{#                    'order': (app.request.query.get('sort') == 'dateHeureDebut' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'#}
+{#                })) }}">#}
+{#                    Date de la sortie#}
+{#                    {% if app.request.query.get('sort') == 'dateHeureDebut' %}#}
+{#                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}#}
+{#                    {% endif %}#}
+{#                </a>#}
             </th>
             <th>
-                <a href="{{ path('sortie_list', app.request.query.all|merge({
-                    'sort': 'dateLimiteInscription',
-                    'order': (app.request.query.get('sort') == 'dateLimiteInscription' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'
-                })) }}">
-                    Clôture
-                    {% if app.request.query.get('sort') == 'dateLimiteInscription' %}
-                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}
-                    {% endif %}
-                </a>
+                Clôture
+{#                <a href="{{ path('sortie_list', app.request.query.all|merge({#}
+{#                    'sort': 'dateLimiteInscription',#}
+{#                    'order': (app.request.query.get('sort') == 'dateLimiteInscription' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'#}
+{#                })) }}">#}
+{#                    Clôture#}
+{#                    {% if app.request.query.get('sort') == 'dateLimiteInscription' %}#}
+{#                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}#}
+{#                    {% endif %}#}
+{#                </a>#}
             </th>
             <th>
-                <a href="{{ path('sortie_list', app.request.query.all|merge({
-                    'sort': 'nbInscriptionsMax',
-                    'order': (app.request.query.get('sort') == 'nbInscriptionsMax' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'
-                })) }}">
-                    Inscrits/Places
-                    {% if app.request.query.get('sort') == 'nbInscriptionsMax' %}
-                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}
-                    {% endif %}
-                </a>
+                Inscrits/Places
+{#                <a href="{{ path('sortie_list', app.request.query.all|merge({#}
+{#                    'sort': 'nbInscriptionsMax',#}
+{#                    'order': (app.request.query.get('sort') == 'nbInscriptionsMax' and app.request.query.get('order') == 'ASC') ? 'DESC' : 'ASC'#}
+{#                })) }}">#}
+{#                    Inscrits/Places#}
+{#                    {% if app.request.query.get('sort') == 'nbInscriptionsMax' %}#}
+{#                        {{ app.request.query.get('order') == 'ASC' ? '▲' : '▼' }}#}
+{#                    {% endif %}#}
+{#                </a>#}
             </th>
             <th>Etat</th>
             <th>Inscrit</th>
@@ -259,28 +262,28 @@
             </div>
             </div>
 
-    {# Affichage de la pagination #}
-    {% if totalPages > 1 %}
-        <div class="pagination">
-            {% if currentPage > 1 %}
-                <a href="{{ path('sortie_list', app.request.query.all|merge({'page': 1})) }}">« Première</a>
-                <a href="{{ path('sortie_list', app.request.query.all|merge({'page': currentPage - 1})) }}">‹ Précédent</a>
-            {% endif %}
+{#    #}{# Affichage de la pagination #}
+{#    {% if totalPages > 1 %}#}
+{#        <div class="pagination">#}
+{#            {% if currentPage > 1 %}#}
+{#                <a href="{{ path('sortie_list', app.request.query.all|merge({'page': 1})) }}">« Première</a>#}
+{#                <a href="{{ path('sortie_list', app.request.query.all|merge({'page': currentPage - 1})) }}">‹ Précédent</a>#}
+{#            {% endif %}#}
 
-            {% for page in 1..totalPages %}
-                {% if page == currentPage %}
-                    <strong>{{ page }}</strong>
-                {% else %}
-                    <a href="{{ path('sortie_list', app.request.query.all|merge({'page': page})) }}">{{ page }}</a>
-                {% endif %}
-            {% endfor %}
+{#            {% for page in 1..totalPages %}#}
+{#                {% if page == currentPage %}#}
+{#                    <strong>{{ page }}</strong>#}
+{#                {% else %}#}
+{#                    <a href="{{ path('sortie_list', app.request.query.all|merge({'page': page})) }}">{{ page }}</a>#}
+{#                {% endif %}#}
+{#            {% endfor %}#}
 
-            {% if currentPage < totalPages %}
-                <a href="{{ path('sortie_list', app.request.query.all|merge({'page': currentPage + 1})) }}">Suivant ›</a>
-                <a href="{{ path('sortie_list', app.request.query.all|merge({'page': totalPages})) }}">Dernière »</a>
-            {% endif %}
-        </div>
-    {% endif %}
+{#            {% if currentPage < totalPages %}#}
+{#                <a href="{{ path('sortie_list', app.request.query.all|merge({'page': currentPage + 1})) }}">Suivant ›</a>#}
+{#                <a href="{{ path('sortie_list', app.request.query.all|merge({'page': totalPages})) }}">Dernière »</a>#}
+{#            {% endif %}#}
+{#        </div>#}
+{#    {% endif %}#}
     <div class="row mb-3"></div>
     <a href="https://example.com" class="btn btn-sortir">Créer un sortie</a>
 
