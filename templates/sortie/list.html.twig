@@ -141,8 +141,8 @@
                 </td>
 
                 <td>{{ sortie.nom }}</td>
-                <td>{{ sortie.dateHeureDebut|date('d-m-Y H:i') }}</td>
-                <td>{{ sortie.dateLimiteInscription|date('d-m-Y') }}</td>
+                <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
+                <td>{{ sortie.dateLimiteInscription|date('d/m/Y') }}</td>
                 <td>{{ sortie.inscriptions|length }}/{{ sortie.nbInscriptionsMax }}</td>
                 <td>{{ sortie.etat.libelle }}</td>
                 <td>
