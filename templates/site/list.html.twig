@@ -5,9 +5,9 @@ Sorties | {{ parent() }}
 {% endblock %}
 
 {% block body %}
-<h1 class="center-text">Gérer les campus</h1>
+<h1 class="text-center">Gérer les campus</h1>
 <div>
-    <h6>Filtrer les sites</h6>
+    <h4>Filtrer les sites</h4>
     <div>
         <form method="get" action="{{ path('site_list') }}" class="filter-form">
             <label for="campus-search">Le nom de la sortie contient</label>
@@ -17,41 +17,44 @@ Sorties | {{ parent() }}
         </form>
     </div>
 </div>
+    <div class="row mb-3"></div>
 
-<table class="table">
-    <thead>
-    <tr>
-        <th>Campus</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        {% for site in sites %}
-    <tr>
-        <td>{{ site.nom }}</td>
-        <td><a href="{{ path('site_edit', { id: site.id }) }}"> Modifier </a>
+        <table class="table table-striped table-bordered table-auto" style="width: auto;">
+            <thead>
+            <tr>
+                <th>Campus</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for site in sites %}
+            <tr>
+                <td>{{ site.nom }}</td>
+                <td><a href="{{ path('site_edit', { id: site.id }) }}"> Modifier </a>
 
-            <form
-                    method="post"
-                    action="{{ path('site_delete', { id: site.id }) }}"
-                    onsubmit="return confirm('Supprimer {{ site.nom }} ?');"
-                    style="display:inline"
-            >
-                <input type="hidden" name="_token"
-                       value="{{ csrf_token('delete_site_' ~ site.id) }}">
+                    <form
+                            method="post"
+                            action="{{ path('site_delete', { id: site.id }) }}"
+                            onsubmit="return confirm('Supprimer {{ site.nom }} ?');"
+                            style="display:inline"
+                    >
+                        <input type="hidden" name="_token"
+                               value="{{ csrf_token('delete_site_' ~ site.id) }}">
 
-                <button class="btn btn-link"> Supprimer </button>
-            </form>
-        </td>
-    </tr>
-    {% else %}
-    <td>Aucun campus trouvé.</td>
-    {% endfor %}
-    <tr><td>{{ form_start(siteForm) }}
-            {{ form_widget(siteForm.nom) }}</td>
-        <td> <button>Rajouter</button>
-            {{ form_end(siteForm) }}</td> </tr>
-    </tbody>
-</table>
+                        <button class="btn btn-link"> Supprimer </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+                <tr>
+                    <td>Aucun campus trouvé.</td>
+                </tr>
+            {% endfor %}
+            <tr><td>{{ form_start(siteForm) }}
+                    {{ form_widget(siteForm.nom) }}</td>
+                <td> <button class="btn btn-link">Rajouter</button>
+                    {{ form_end(siteForm) }}</td> </tr>
+            </tbody>
+        </table>
+
 {% endblock %}
