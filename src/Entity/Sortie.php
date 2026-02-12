@@ -64,6 +64,7 @@ class Sortie
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]
     #[ORM\JoinColumn(name: 'lieux_no_lieu', referencedColumnName: 'no_lieu', nullable: false)]
+    #[Groups(['getSorties'])]
     private Lieu $lieu;
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]
@@ -73,16 +74,19 @@ class Sortie
 
     #[ORM\ManyToOne(inversedBy: 'sortiesOrganisees')]
     #[ORM\JoinColumn(name: 'organisateur', referencedColumnName: 'no_participant', nullable: false)]
+    #[Groups(['getSorties'])]
     private Participant $organisateur;
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]
     #[ORM\JoinColumn(name: 'sites_no_site', referencedColumnName: 'no_site', nullable: false)]
+    #[Groups(['getSorties'])]
     private Site $site;
 
     /**
      * @var Collection<int, Inscription>
      */
     #[ORM\OneToMany(targetEntity: Inscription::class, mappedBy: 'sortie', orphanRemoval: true)]
+    #[Groups(['getSorties'])]
     private Collection $inscriptions;
 
     public function __construct()
