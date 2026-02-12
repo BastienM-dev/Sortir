@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SortieRepository::class)]
@@ -18,33 +19,40 @@ class Sortie
     #[ORM\Column(name: 'no_sortie')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 30, nullable: false)]
+    #[ORM\Column(length: 80, nullable: false)]
     #[Assert\NotBlank(message: 'Le nom de la sortie est obligatoire')]
     #[Assert\Length(max: 30)]
+    #[Groups(['getSorties'])]
     private string $nom;
 
     #[ORM\Column(name: 'datedebut', type: Types::DATETIME_MUTABLE, nullable: false)]
     #[Assert\NotBlank(message: 'La date de début est obligatoire')]
+    #[Groups(['getSorties'])]
     private \DateTimeInterface $dateHeureDebut;
 
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     #[Assert\Positive(message: 'La durée doit être positive')]
+    #[Groups(['getSorties'])]
     private ?int $duree = null;
 
     #[ORM\Column(name: 'datecloture', type: Types::DATETIME_MUTABLE, nullable: false)]
     #[Assert\NotBlank(message: 'La date limite d\'inscription est obligatoire')]
+    #[Groups(['getSorties'])]
     private \DateTimeInterface $dateLimiteInscription;
 
     #[ORM\Column(name: 'nbinscriptionsmax', nullable: false)]
     #[Assert\NotBlank(message: 'Le nombre maximum d\'inscriptions est obligatoire')]
     #[Assert\Positive(message: 'Le nombre maximum doit être positif')]
+    #[Groups(['getSorties'])]
     private int $nbInscriptionsMax;
 
     #[ORM\Column(name: 'descriptioninfos', type: Types::TEXT, nullable: true)]
     #[Assert\Length(max: 500)]
+    #[Groups(['getSorties'])]
     private ?string $infosSortie = null;
 
     #[ORM\Column(name: 'urlPhoto', length: 250, nullable: true)]
+    #[Groups(['getSorties'])]
     private ?string $urlPhoto = null;
 
     // ✅ AJOUT : on stocke uniquement le nom du fichier (pas le fichier)
@@ -60,6 +68,7 @@ class Sortie
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]
     #[ORM\JoinColumn(name: 'etats_no_etat', referencedColumnName: 'no_etat', nullable: false)]
+    #[Groups(['getSorties'])]
     private Etat $etat;
 
     #[ORM\ManyToOne(inversedBy: 'sortiesOrganisees')]

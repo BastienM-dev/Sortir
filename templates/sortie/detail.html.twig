@@ -53,8 +53,8 @@
         <tbody>
         {% for participant in participants %}
             <tr>
-                <td>{{ participant.prenom }} {{ participant.nom }}</td>
-                <td> actions placeholder</td>
+                <td><a href="{{ path('participant_show', { id: participant.id }) }}" >{{ participant.pseudo }}</a></td>
+                <td> {{ participant.prenom }} {{ participant.nom }}</td>
             </tr>
         {% else %}
             <td>Aucun participant inscrit.</td>
