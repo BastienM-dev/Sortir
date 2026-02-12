@@ -1,3 +1,14 @@
+<<<<<<< HEAD
+=======
+:root {
+    --table-border-color: rgb(0, 64, 122);
+}
+
+
+/* =========================
+   RESET MINIMAL
+========================= */
+>>>>>>> 478bc55588db44e9ea7b967374894498ef65b301
 * {
     box-sizing: border-box;
     margin: 0;
@@ -201,3 +212,42 @@ hr {
     border-top: 2px solid #000;
     opacity: 1;
 }
+<<<<<<< HEAD
+=======
+
+
+
+.table.table-striped {
+    border-collapse: collapse;
+    border-top: 3px solid var(--table-border-color);
+    border-bottom: 3px solid var(--table-border-color);
+}
+
+
+.table.table-striped th,
+.table.table-striped td {
+    border-left: 2px solid var(--table-border-color);
+    border-right: 2px solid var(--table-border-color);
+}
+
+
+.table.table-striped th,
+.table.table-striped td {
+    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+/*.site-footer {
+    background: rgb(0, 64, 122);
+    color: #fff;
+    padding: 12px 0;
+    text-align: center;
+    font-size: 13px;
+}*/
+
+>>>>>>> 478bc55588db44e9ea7b967374894498ef65b301
