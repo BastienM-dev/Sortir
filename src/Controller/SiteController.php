@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class SiteController extends AbstractController
 {
-    #[Route('/campus/ajouter', name: 'site_ajouter', methods: ['POST', 'GET'])]
+    #[Route('admin/campus/ajouter', name: 'site_ajouter', methods: ['POST', 'GET'])]
     public function ajouter(Request $request, EntityManagerInterface $em): Response
     {
         if (!$this->isGranted('ROLE_ADMIN')) {
@@ -42,7 +42,7 @@ class SiteController extends AbstractController
         return $this->render('site/ajouter.html.twig', ['siteForm' => $siteForm]);
     }
 
-    #[Route('/campus/liste', name: 'site_list', methods: ['GET', 'POST'])]
+    #[Route('admin/campus/liste', name: 'site_list', methods: ['GET', 'POST'])]
     public function list(SiteRepository $siteRepository, Request $request, EntityManagerInterface $em): Response
     {
         if (!$this->isGranted('ROLE_ADMIN')) {
@@ -78,7 +78,7 @@ class SiteController extends AbstractController
         return $this->render('site/list.html.twig', ['sites' => $sites, 'siteForm' => $siteForm]);
     }
 
-    #[Route('/campus/{id}/supprimer', name: 'site_delete', methods: ['POST'])]
+    #[Route('admin/campus/{id}/supprimer', name: 'site_delete', methods: ['POST'])]
     public function delete(Site $site, Request $request, EntityManagerInterface $em): Response
     {
         if (!$this->isGranted('ROLE_ADMIN')) {
@@ -107,7 +107,7 @@ class SiteController extends AbstractController
 
     }
 
-    #[Route('/site/{id}/modifier', name: 'site_edit', methods: ['POST', 'GET'])]
+    #[Route('admin/site/{id}/modifier', name: 'site_edit', methods: ['POST', 'GET'])]
     public function edit(Request $request, EntityManagerInterface $em, Site $site): Response
     {
         if (!$this->isGranted('ROLE_ADMIN')) {
