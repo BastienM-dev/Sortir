@@ -6,7 +6,7 @@
     <h1>Gestion des lieux</h1>
 
     {% if is_granted('ROLE_ADMIN') %}
-        <a href="{{ path('admin_lieu_create') }}">
+        <a href="{{ path('lieu_create') }}">
             <button type="button">Créer un nouveau lieu</button>
         </a>
     {% endif %}
@@ -53,10 +53,10 @@
                     <td>{{ lieu.sorties|length }}</td>
                     {% if is_granted('ROLE_ADMIN') %}
                         <td>
-                            <a href="{{ path('admin_lieu_edit', {id: lieu.id}) }}">Modifier</a>
+                            <a href="{{ path('lieu_edit', {id: lieu.id}) }}">Modifier</a>
 
                             {% if lieu.sorties|length == 0 %}
-                                <form method="post" action="{{ path('admin_lieu_delete', {id: lieu.id}) }}" style="display:inline;">
+                                <form method="post" action="{{ path('lieu_delete', {id: lieu.id}) }}" style="display:inline;">
                                     <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce lieu ?')">
                                         Supprimer
                                     </button>

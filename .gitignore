@@ -14,3 +14,11 @@
 /assets/vendor/
 ###< symfony/asset-mapper ###
 .DS_Store
+
+# uploads sorties
+/public/uploads/sorties/*
+!/public/uploads/sorties/.gitkeep
+
+# miniature
+/public/uploads/sorties/thumbs/*
+!/public/uploads/sorties/thumbs/.gitkeep

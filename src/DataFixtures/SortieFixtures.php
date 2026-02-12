@@ -40,7 +40,7 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
         $sites = [$siteSaintHerblain, $siteChartres, $siteLaRoche];
 
         // --- SORTIES EN CRÉATION (2 sorties) ---
-        for ($i = 1; $i <= 2; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             $sortie = new Sortie();
             $sortie->setNom($cutNom("Sortie en création #$i"));
             $sortie->setDateHeureDebut($faker->dateTimeBetween('+1 week', '+2 weeks'));
@@ -63,7 +63,7 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
         }
 
         // --- SORTIES OUVERTES avec places disponibles (5 sorties) ---
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 30; $i++) {
             $sortie = new Sortie();
 
             $nom = "Sortie ouverte #$i - " . $faker->randomElement([
@@ -128,7 +128,7 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
         }
 
         // --- SORTIES CLÔTURÉES (3 sorties) ---
-        for ($i = 1; $i <= 3; $i++) {
+        for ($i = 1; $i <= 15; $i++) {
             $sortie = new Sortie();
 
             $nom = "Sortie clôturée #$i - " . $faker->randomElement(['Concert', 'Match', 'Théâtre']);
@@ -213,7 +213,7 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
         }
 
         // --- SORTIES ANNULÉES (2 sorties) ---
-        for ($i = 1; $i <= 2; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             $sortie = new Sortie();
             $sortie->setNom($cutNom("Sortie annulée #$i"));
             $sortie->setDateHeureDebut($faker->dateTimeBetween('+1 week', '+2 weeks'));

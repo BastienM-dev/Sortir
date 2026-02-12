@@ -16,8 +16,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
-//#[Route('/sortie', name: 'sortie_')]
 class SortieController extends AbstractController
 {
     // ==========================================
@@ -28,7 +28,8 @@ class SortieController extends AbstractController
     public function create(
         Request $request,
         EntityManagerInterface $em,
-        EtatRepository $etatRepository
+        EtatRepository $etatRepository,
+        SluggerInterface $slugger
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
@@ -48,6 +49,43 @@ class SortieController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // ✅ UPLOAD PHOTO (on stocke seulement le nom)
+            $photoFile = $form->get('photo')->getData();
+            if ($photoFile) {
+                $uploadDir = $this->getParameter('sortie_photos_dir');
+
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0775, true);
+                }
+
+                $originalFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $photoFile->guessExtension();
+
+                $photoFile->move($uploadDir, $newFilename);
+
+                // ✅ THUMBNAIL (juste après le move)
+                $thumbDir = $this->getParameter('sortie_thumbs_dir');
+                if (!is_dir($thumbDir)) {
+                    mkdir($thumbDir, 0775, true);
+                }
+
+                // miniature en jpg (même nom mais .jpg)
+                $thumbFilename = pathinfo($newFilename, PATHINFO_FILENAME) . '.jpg';
+                $thumbPath = $thumbDir . DIRECTORY_SEPARATOR . $thumbFilename;
+
+                $this->createThumbnail(
+                    $uploadDir . DIRECTORY_SEPARATOR . $newFilename,
+                    $thumbPath,
+                    300
+                );
+
+                $sortie->setPhotoFilename($newFilename);
+            }
+            // ✅ FIN UPLOAD PHOTO
+
+
             $etatEnCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
             $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
 
@@ -68,7 +106,7 @@ class SortieController extends AbstractController
             $em->persist($sortie);
             $em->flush();
 
-            return $this->redirectToRoute('sortie_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         return $this->render('sortie/create.html.twig', [
@@ -81,7 +119,8 @@ class SortieController extends AbstractController
         Sortie $sortie,
         Request $request,
         EntityManagerInterface $em,
-        EtatRepository $etatRepository
+        EtatRepository $etatRepository,
+        SluggerInterface $slugger
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
@@ -107,13 +146,50 @@ class SortieController extends AbstractController
                 'error',
                 "Impossible de modifier : la sortie n'est plus en création."
             );
-            return $this->redirectToRoute('sortie_index');
+            return $this->redirectToRoute('sortie_list');
         }
 
         $form = $this->createForm(SortieType::class, $sortie);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // ✅ UPLOAD PHOTO (on stocke seulement le nom)
+            $photoFile = $form->get('photo')->getData();
+            if ($photoFile) {
+                $uploadDir = $this->getParameter('sortie_photos_dir');
+
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0775, true);
+                }
+
+                $originalFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $photoFile->guessExtension();
+
+                $photoFile->move($uploadDir, $newFilename);
+
+                // ✅ THUMBNAIL (juste après le move)
+                $thumbDir = $this->getParameter('sortie_thumbs_dir');
+                if (!is_dir($thumbDir)) {
+                    mkdir($thumbDir, 0775, true);
+                }
+
+                // miniature en jpg (même nom mais .jpg)
+                $thumbFilename = pathinfo($newFilename, PATHINFO_FILENAME) . '.jpg';
+                $thumbPath = $thumbDir . DIRECTORY_SEPARATOR . $thumbFilename;
+
+                $this->createThumbnail(
+                    $uploadDir . DIRECTORY_SEPARATOR . $newFilename,
+                    $thumbPath,
+                    300
+                );
+
+                $sortie->setPhotoFilename($newFilename);
+            }
+            // ✅ FIN UPLOAD PHOTO
+
+
             $etatEnCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
             $etatOuverte    = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
 
@@ -155,49 +231,41 @@ class SortieController extends AbstractController
         EntityManagerInterface $em,
         EtatRepository $etatRepository
     ): Response {
-        // 1. Vérifier que l'utilisateur est connecté
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $participant = $this->getUser();
 
-        // 2. RÈGLE : L'organisateur ne peut pas s'inscrire à sa propre sortie
         if ($sortie->getOrganisateur() === $participant) {
             $this->addFlash('error', 'Vous ne pouvez pas vous inscrire à votre propre sortie.');
             return $this->redirectToRoute('sortie_list');
         }
 
-        // 3. RÈGLE : La sortie doit être en état "Ouverte"
         if ($sortie->getEtat()->getLibelle() !== 'Ouverte') {
             $this->addFlash('error', 'Cette sortie n\'est plus ouverte aux inscriptions.');
             return $this->redirectToRoute('sortie_list');
         }
 
-        // 4. RÈGLE : La date limite d'inscription ne doit pas être dépassée
         $now = new \DateTimeImmutable();
         if ($now > $sortie->getDateLimiteInscription()) {
             $this->addFlash('error', 'La date limite d\'inscription est dépassée.');
             return $this->redirectToRoute('sortie_list');
         }
 
-        // 5. RÈGLE : Il doit rester des places disponibles
         if ($sortie->getNbInscrits() >= $sortie->getNbInscriptionsMax()) {
             $this->addFlash('error', 'Il n\'y a plus de place disponible pour cette sortie.');
             return $this->redirectToRoute('sortie_list');
         }
 
-        // 6. RÈGLE : Le participant ne doit pas déjà être inscrit
         if ($sortie->isParticipantInscrit($participant)) {
             $this->addFlash('warning', 'Vous êtes déjà inscrit à cette sortie.');
             return $this->redirectToRoute('sortie_list');
         }
 
-        // 7. Créer l'inscription
         $inscription = new Inscription();
         $inscription->setParticipant($participant);
         $inscription->setSortie($sortie);
 
         $em->persist($inscription);
 
-        // 8. Vérifier si la sortie doit passer en état "Clôturée"
         if ($sortie->getNbInscrits() + 1 >= $sortie->getNbInscriptionsMax()) {
             $etatCloturee = $etatRepository->findOneBy(['libelle' => 'Clôturée']);
             if ($etatCloturee) {
@@ -221,24 +289,20 @@ class SortieController extends AbstractController
         EntityManagerInterface $em,
         EtatRepository $etatRepository
     ): Response {
-        // 1. Vérifier que l'utilisateur est connecté
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $participant = $this->getUser();
 
-        // 2. RÈGLE : Le participant doit être inscrit
         if (!$sortie->isParticipantInscrit($participant)) {
             $this->addFlash('error', 'Vous n\'êtes pas inscrit à cette sortie.');
             return $this->redirectToRoute('sortie_list');
         }
 
-        // 3. RÈGLE : La sortie ne doit pas avoir débuté
         $now = new \DateTimeImmutable();
         if ($now >= $sortie->getDateHeureDebut()) {
             $this->addFlash('error', 'Impossible de se désister, la sortie a déjà commencé.');
             return $this->redirectToRoute('sortie_list');
         }
 
-        // 4. Trouver et supprimer l'inscription
         foreach ($sortie->getInscriptions() as $inscription) {
             if ($inscription->getParticipant() === $participant) {
                 $sortie->removeInscription($inscription);
@@ -247,7 +311,6 @@ class SortieController extends AbstractController
             }
         }
 
-        // 5. Vérifier si la sortie doit repasser en état "Ouverte"
         if ($sortie->getEtat()->getLibelle() === 'Clôturée') {
             if ($sortie->getNbInscrits() - 1 < $sortie->getNbInscriptionsMax()
                 && $now <= $sortie->getDateLimiteInscription()) {
@@ -275,31 +338,26 @@ class SortieController extends AbstractController
         EtatRepository $etatRepository,
         Request $request
     ): Response {
-        // 1. Vérifier que l'utilisateur est connecté
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $participant = $this->getUser();
 
-        // 2. RÈGLE : Seul l'organisateur peut annuler
         if ($sortie->getOrganisateur() !== $participant) {
             $this->addFlash('error', 'Seul l\'organisateur peut annuler cette sortie.');
             return $this->redirectToRoute('sortie_list');
         }
 
-        // 3. RÈGLE : La sortie doit être publiée (Ouverte ou Clôturée)
         $etatActuel = $sortie->getEtat()->getLibelle();
         if ($etatActuel !== 'Ouverte' && $etatActuel !== 'Clôturée') {
             $this->addFlash('error', 'Cette sortie ne peut pas être annulée dans son état actuel.');
             return $this->redirectToRoute('sortie_list');
         }
 
-        // 4. RÈGLE : La sortie ne doit pas avoir commencé
         $now = new \DateTimeImmutable();
         if ($now >= $sortie->getDateHeureDebut()) {
             $this->addFlash('error', 'Impossible d\'annuler une sortie qui a déjà commencé.');
             return $this->redirectToRoute('sortie_list');
         }
 
-        // 5. Si POST : traiter l'annulation
         if ($request->isMethod('POST')) {
             $motif = $request->request->get('motif', '');
 
@@ -325,38 +383,78 @@ class SortieController extends AbstractController
             return $this->redirectToRoute('sortie_list');
         }
 
-        // Si GET : afficher le formulaire de confirmation
         return $this->render('sortie/annuler.html.twig', [
             'sortie' => $sortie,
         ]);
-
-
     }
 
     #[Route('/', name:'sortie_list', methods: ['GET'])]
-    public function list(SortieRepository $sortieRepository, SiteRepository $siteRepository, Request $request, ): Response
+    public function list(SortieRepository $sortieRepository, SiteRepository $siteRepository, Request $request): Response
     {
+        if (!$this->isGranted('ROLE_USER')) {
+            $this->addFlash('error', 'Pour accéder à la liste des sorties, veuillez vous connecter.');
+
+            return $this->redirectToRoute('app_login');
+        }
 
         /** @var \App\Entity\Participant $user */
         $user = $this->getUser();
         $siteList = $siteRepository->findBy([], ['nom' => 'ASC']);
 
-
         if(!$siteList) {
             throw $this->createNotFoundException('Pas de campus trouvés.');
         }
-        if(!$user) {
-            $site = $siteRepository->findFirstAlphabetical();
-        }else{
-            $site = $user->getSite();
-        }
+
+        // Pagination
+        $page = max(1, $request->query->getInt('page', 1));
+        $limit = 15;
+        $offset = ($page - 1) * $limit;
+
+
+        // Affichage par défaut : toutes les sorties du site, paginées
+        $qb = $sortieRepository->createQueryBuilder('s')
+            ->innerJoin('s.etat', 'e');
+
+        // Afficher les sorties publiques + "En création" de l'utilisateur
+
+        $qb->andWhere(
+            $qb->expr()->orX(
+                $qb->expr()->neq('e.libelle', ':etatCreation'),
+                $qb->expr()->andX(
+                    $qb->expr()->eq('e.libelle', ':etatCreation'),
+                    $qb->expr()->eq('s.organisateur', ':currentUser')
+                )
+            )
+        )
+            ->setParameter('etatCreation', 'En création')
+            ->setParameter('currentUser', $user);
+
+
+        $qb->orderBy('s.dateHeureDebut', 'ASC');
+
+
 
         if($request->query->count() === 0){
+            $site = $user->getSite();
+            $qb->andWhere('s.site = :site')
+                ->setParameter('site', $site);
 
-            $sortieList = $sortieRepository->findAllSortiesBySite($site);
 
-        }else{
-            $siteId = $request->query->get('site');
+            // Compter le total
+            $qbCount = clone $qb;
+            $totalSorties = (int) $qbCount->select('COUNT(s.id)')
+                ->getQuery()
+                ->getSingleScalarResult();
+
+            // Appliquer pagination
+            $sortieList = $qb->setFirstResult($offset)
+                ->setMaxResults($limit)
+                ->getQuery()
+                ->getResult();
+
+
+        } else {
+            $site = $request->query->get('site');
             $searchText = $request->query->get('search');
             $startDate = $request->query->get('date_from');
             $endDate = $request->query->get('date_to');
@@ -365,74 +463,94 @@ class SortieController extends AbstractController
             $nonInscrit = $request->query->get('non_inscrit');
             $terminees = $request->query->get('terminees');
 
-            $qb = $sortieRepository->createQueryBuilder('s')
-                ->innerJoin('s.etat', 'e')
-                ->andWhere('s.site = :siteId')
-                ->setParameter('siteId', $siteId);
-            if($user){
-                $qb->andWhere(
-                    $qb->expr()->andX(
-                        $qb->expr()->eq('e.libelle', ':etatCreation'),
-                        $qb->expr()->eq('s.organisateur', ':organisateur')
-                    )
-                )
-                    ->setParameter('etatCreation', 'En création')  // Bind 'En création' to the query
-                    ->setParameter('organisateur', $user);
-            }
 
 
+            $qb->andWhere('s.site = :siteId')
+                ->setParameter('siteId', $site);
 
-
-            $etatsPubliques= ['Ouverte','Clôturée', 'En cours', 'Terminée', 'Annulée', 'Historisée'];
-            $qb->andWhere('e.libelle IN (:ETATS)')
-                ->setParameter('ETATS', $etatsPubliques);
 
             if($startDate){
-                $startDate = \DateTimeImmutable::createFromFormat('Y-m-d', $startDate);
+                $startDate = \DateTime::createFromFormat('Y-m-d', $startDate);
                 $qb->andWhere('s.dateHeureDebut > :startDate')
                     ->setParameter('startDate', $startDate);
             }
             if($endDate){
-                $endDate = \DateTimeImmutable::createFromFormat('Y-m-d', $endDate);
-                $qb->andWhere('s.dateLimiteInscription < :endDate')->setParameter('endDate', $endDate);
+                $endDate = \DateTime::createFromFormat('Y-m-d', $endDate);
+                $qb->andWhere('s.dateHeureDebut < :endDate')
+                    ->setParameter('endDate', $endDate);
             }
             if($organisateur){
                 $qb->andWhere('s.organisateur = :organisateur')
                     ->setParameter('organisateur', $user);
             }
+
+            if($nonInscrit || $inscrit){
+                $qb->leftJoin('s.inscriptions', 'i', 'WITH', 'i.participant = :user');
+            }
             if($inscrit){
-                $qb->andWhere(':user MEMBER OF s.inscriptions')
+                $qb->andWhere('i.participant IS NOT NULL')
                     ->setParameter('user', $user);
             }
+
             if($nonInscrit){
-                $qb->andWhere(':user NOT MEMBER OF s.inscriptions')
+                $qb->andWhere('i.participant IS NULL')
                     ->setParameter('user', $user);
             }
             if ($searchText) {
                 $qb->andWhere('LOWER(s.nom) LIKE LOWER(:searchText)')
-                    ->setParameter('searchText', '%' . $searchText . '%');
+                ->setParameter('searchText', '%' . $searchText . '%');
             }
+
             if ($terminees) {
-//                $qb->innerJoin('s.etat', 'e')
-                   $qb->andWhere('e.libelle = :etatTerminee')
+                $qb->andWhere('e.libelle = :etatTerminee')
                     ->setParameter('etatTerminee', 'Terminée');
             }
 
-            $sortieList = $qb->getQuery()->getResult();
+            // Gestion du tri
+            $sortBy = $request->query->get('sort', 'dateHeureDebut'); // Colonne par défaut
+            $order = $request->query->get('order', 'ASC'); // Ordre par défaut
+
+            // Sécurité : colonnes autorisées pour le tri
+            $allowedSorts = ['nom', 'dateHeureDebut', 'dateLimiteInscription', 'nbInscriptionsMax'];
+            if (!in_array($sortBy, $allowedSorts)) {
+                $sortBy = 'dateHeureDebut';
+            }
+
+            // Sécurité : ordre ASC ou DESC uniquement
+            $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
+
+            // Application du tri
+            $qb->orderBy('s.' . $sortBy, $order);
+
+            // Compter le total
+            $qbCount = clone $qb;
+            $totalSorties = (int) $qbCount->select('COUNT(s.id)')
+                ->getQuery()
+                ->getSingleScalarResult();
+
+            // Appliquer pagination
+            $sortieList = $qb->setFirstResult($offset)
+                ->setMaxResults($limit)
+                ->getQuery()
+                ->getResult();
         }
 
+        // Calcul du nombre de pages
+        $totalPages = (int) ceil($totalSorties / $limit);
 
 
-        return $this->render('sortie/list.html.twig',
-            ['sortieList' => $sortieList,
-                'siteList' => $siteList,
-                'user' => $user,
-                'site' => $site,
-                ]);
+
+
+        return $this->render('sortie/list.html.twig', [
+            'sortieList' => $sortieList,
+            'siteList' => $siteList,
+            'user' => $user,
+            'site' => $site,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalSorties' => $totalSorties,
+        ]);
     }
-
-
-
 
     #[Route('/{id}/detail', name: 'sortie_detail', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function detail(Sortie $sortie, SortieRepository $sortieRepository): Response
@@ -443,5 +561,65 @@ class SortieController extends AbstractController
             'sortie' => $sortie,
             'participants' => $participants,
         ]);
+    }
+
+    // ==========================================================
+    // ✅ MINIATURE GD (private, en bas de classe)
+    // ==========================================================
+    private function createThumbnail(string $sourcePath, string $destPath, int $maxWidth = 300): void
+    {
+        $info = @getimagesize($sourcePath);
+        if (!$info) {
+            return;
+        }
+
+        [$width, $height] = $info;
+        if ($width <= 0 || $height <= 0) {
+            return;
+        }
+
+        // Si déjà plus petit que la cible -> on copie juste
+        if ($width <= $maxWidth) {
+            @copy($sourcePath, $destPath);
+            return;
+        }
+
+        $newWidth = $maxWidth;
+        $newHeight = (int) round(($height * $newWidth) / $width);
+
+        // Charger selon mime
+        $mime = $info['mime'] ?? '';
+        switch ($mime) {
+            case 'image/jpeg':
+                $src = imagecreatefromjpeg($sourcePath);
+                break;
+            case 'image/png':
+                $src = imagecreatefrompng($sourcePath);
+                break;
+            case 'image/webp':
+                if (!function_exists('imagecreatefromwebp')) {
+                    return; // webp pas supporté par GD
+                }
+                $src = imagecreatefromwebp($sourcePath);
+                break;
+            default:
+                return;
+        }
+
+        $dst = imagecreatetruecolor($newWidth, $newHeight);
+
+        // gestion transparence PNG
+        if ($mime === 'image/png') {
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+        }
+
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        // On enregistre en JPEG (simple + compatible partout)
+        imagejpeg($dst, $destPath, 85);
+
+        imagedestroy($src);
+        imagedestroy($dst);
     }
 }

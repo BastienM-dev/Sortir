@@ -18,6 +18,11 @@
         {% endif %}
     </div>
 
+    {# Seulement si c'est MON profil #}
+    {% if app.user and app.user.id == participant.id %}
+        <a href="{{ path('profil_edit') }}" class="btn btn-primary">Modifier mon profil</a>
+    {% endif %}
+
     {# ===== Sécurité : seul le propriétaire du profil peut changer la photo ===== #}
     {% if app.user and app.user.id == participant.id %}
         <p style="margin-bottom: 20px;">
