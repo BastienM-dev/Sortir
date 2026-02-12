@@ -4,6 +4,11 @@
     Sorties | {{ parent() }}
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+{% endblock %}
+
 {% block body %}
     <h1 class="center-text">Gérer les campus</h1>
     <div>

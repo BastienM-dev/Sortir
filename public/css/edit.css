@@ -56,7 +56,7 @@
     margin: 0;
 }
 
-/* ✅ Inputs arrondis (style ancien / Bootstrap-like) */
+/* Inputs arrondis */
 .sortir-input {
     height: 34px;
     font-size: 14px;
@@ -75,7 +75,7 @@
 }
 
 /* =========================
-   Alerts centrées (mais pas énormes)
+   Alerts
 ========================= */
 
 .alert-sortir {
@@ -87,10 +87,10 @@
 }
 
 /* =========================
-   SORTIR UI - compact wireframe
+   SORTIR UI -
 ========================= */
 
-/* Alerts plus discrètes (maquette) */
+
 .alert-sortir {
     padding: 8px 12px;
     max-width: 900px;
@@ -98,14 +98,14 @@
     font-size: 14px;
 }
 
-/* Bouton Sortir : taille maquette */
+
 .btn-sortir {
     border: 3px solid #000;
     background: #fff;
     font-weight: bold;
     box-shadow: 4px 4px 0 #000;
     border-radius: 0;
-    padding: 10px 22px;          /* ✅ plus petit que Bootstrap */
+    padding: 10px 22px;
     font-size: 14px;
     cursor: pointer;
     display: inline-block;
@@ -115,7 +115,7 @@
     transform: translateY(-1px);
 }
 
-/* Variante bouton principal (Enregistrer) */
+
 .btn-sortir--primary {
     background: #e0e0e0;
     border: 2px solid #444;
@@ -164,7 +164,7 @@ a.btn-sortir--primary {
     cursor: pointer;
 }
 
-/* Si jamais tu n'as mis que btn-sortir--primary (sans btn-sortir) */
+
 .btn-sortir--primary {
     border: 2px solid #444 !important;
     background: #e0e0e0 !important;

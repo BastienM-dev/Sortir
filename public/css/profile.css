@@ -1,0 +1,147 @@
+.page{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 18px 60px;
+}
+
+/* HEADER : logo à gauche, nav à droite */
+.page-header{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 40px;
+}
+
+.brand{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.brand-logo{
+    display: inline-flex;
+    width: 60px;
+    height: 60px;
+}
+
+.brand-logo img{
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.brand-name{
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* NAV */
+.top-nav{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.top-nav a{
+    text-decoration: underline;
+}
+
+.top-nav-sep{
+    opacity: 0.6;
+}
+
+/* TITRE CENTRÉ */
+.profile-title{
+    text-align: center;
+    font-size: 2.1rem;
+    margin: 0 0 30px;
+    font-weight: 800;
+}
+
+/* BLOC PROFIL : photo gauche, infos droite */
+.profile{
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 60px;
+    align-items: start;
+}
+
+/* PHOTO */
+.profile-photo{
+    display: flex;
+    justify-content: flex-start;
+}
+
+.profile-avatar{
+    width: 320px;
+    height: 220px;
+    object-fit: cover;
+    border: 2px solid #111;
+    background: #fff;
+}
+
+.profile-avatar--default{
+    opacity: 0.8;
+}
+
+/* INFOS : 2 colonnes label/valeur */
+.profile-dl{
+    margin: 0;
+    display: grid;
+    gap: 18px;
+}
+
+.profile-row{
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 26px;
+    align-items: baseline;
+}
+
+.profile-row dt{
+    font-weight: 600;
+}
+
+.profile-row dd{
+    margin: 0;
+}
+
+.profile-mail{
+    text-decoration: underline;
+}
+
+/* BOUTONS (si tu veux) */
+.profile-actions{
+    margin-top: 24px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 900px){
+    .profile{
+        grid-template-columns: 1fr;
+        gap: 26px;
+    }
+    .profile-photo{
+        justify-content: center;
+    }
+    .profile-avatar{
+        width: 260px;
+        height: 180px;
+    }
+    .profile-row{
+        grid-template-columns: 110px 1fr;
+        gap: 16px;
+    }
+    .page-header{
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .top-nav{
+        margin-top: 0;
+    }
+}

@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}  Détail du profil - {{ participant.pseudo }}{% endblock %}
+
+{% block body %}
+    <main class="page">
+
+        {# Zone logo + nav comme sur la maquette #}
+        <header class="page-header">
+            <div class="brand">
+                <a href="{{ path('main_index') }}" class="brand-logo" aria-label="Accueil">
+                    <img src="{{ asset('img/logo-sortir.png') }}" alt="Logo Sortir.com">
+                </a>
+                <span class="brand-name">Sortir.com</span>
+            </div>
+
+            <nav class="top-nav">
+                <a href="{{ path('main_index') }}">Accueil</a>
+                <span class="top-nav-sep">|</span>
+                <a href="{{ path('profil_detail', {id: app.user.id}) }}">Mon profil</a>
+                <span class="top-nav-sep">|</span>
+                <a href="{{ path('app_logout') }}">Se déconnecter</a>
+            </nav>
+        </header>
+
+        {# Titre centré #}
+        <h1 class="profile-title">{{ participant.pseudo }}</h1>
+
+        {# Bloc profil (photo + infos) #}
+        <section class="profile">
+            <div class="profile-photo">
+                {% if participant.photoFilename %}
+                    <img
+                            class="profile-avatar"
+                            src="{{ asset('uploads/profiles/' ~ participant.photoFilename) }}"
+                            alt="Photo de profil de {{ participant.pseudo }}"
+                    >
+                {% else %}
+                    <img
+                            class="profile-avatar profile-avatar--default"
+                            src="{{ asset('img/default-avatar.png') }}"
+                            alt="Avatar par défaut"
+                    >
+                {% endif %}
+            </div>
+
+            <div class="profile-info">
+                <dl class="profile-dl">
+                    <div class="profile-row">
+                        <dt>Campus</dt>
+                        <dd>{{ participant.site.nom }}</dd>
+                    </div>
+
+                    <div class="profile-row">
+                        <dt>Prénom</dt>
+                        <dd>{{ participant.prenom }}</dd>
+                    </div>
+
+                    <div class="profile-row">
+                        <dt>Nom</dt>
+                        <dd>{{ participant.nom }}</dd>
+                    </div>
+
+                    <div class="profile-row">
+                        <dt>Téléphone</dt>
+                        <dd>{{ participant.telephone ?: '—' }}</dd>
+                    </div>
+
+                    <div class="profile-row">
+                        <dt>Email</dt>
+                        <dd>
+                            <a class="profile-mail" href="mailto:{{ participant.mail }}">{{ participant.mail }}</a>
+                        </dd>
+                    </div>
+                </dl>
+
+                {# Actions visibles seulement si c'est mon profil (optionnel, mais pratique) #}
+                {% if app.user and app.user.id == participant.id %}
+                    <div class="profile-actions">
+                        <a class="btn btn-primary" href="{{ path('profil_edit') }}">Modifier mon profil</a>
+                        <a class="btn btn-secondary" href="{{ path('profil_photo_edit') }}">Changer ma photo</a>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+    </main>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h1>Profil de {{ participant.pseudo }}</h1>
+
+    {# ===== Photo de profil ===== #}
+    <div style="margin-bottom: 20px;">
+        {% if participant.photoFilename %}
+            <img src="{{ asset('uploads/profiles/' ~ participant.photoFilename) }}"
+                 alt="Photo de profil"
+                 style="max-width:200px; border-radius:10px;">
+        {% else %}
+            <img src="{{ asset('img/default-avatar.png') }}"
+                 alt="Avatar par défaut"
+                 style="max-width:200px; border-radius:10px; opacity:0.7;">
+        {% endif %}
+    </div>
+
+    {# Seulement si c'est MON profil #}
+    {% if app.user and app.user.id == participant.id %}
+        <a href="{{ path('profil_edit') }}" class="btn btn-primary">Modifier mon profil</a>
+    {% endif %}
+
+    {# ===== Sécurité : seul le propriétaire du profil peut changer la photo ===== #}
+    {% if app.user and app.user.id == participant.id %}
+        <p style="margin-bottom: 20px;">
+            <a href="{{ path('profil_photo_edit') }}">Changer ma photo</a>
+        </p>
+    {% endif %}
+
+    <div>
+        <p><strong>Nom :</strong> {{ participant.nom }}</p>
+        <p><strong>Prénom :</strong> {{ participant.prenom }}</p>
+
+        <p><strong>Email :</strong> {{ participant.mail }}</p>
+
+        {% if participant.telephone %}
+            <p><strong>Téléphone :</strong> {{ participant.telephone }}</p>
+        {% endif %}
+
+        <p><strong>Site :</strong> {{ participant.site.nom }}</p>
+
+        <p>
+            <strong>Statut :</strong>
+            {% if participant.actif %}
+                Actif
+            {% else %}
+                Inactif
+            {% endif %}
+        </p>
+
+        {% if participant.administrateur %}
+            <p><strong>Rôle :</strong> Administrateur</p>
+        {% endif %}
+    </div>
+
+    <p style="margin-top: 20px;">
+        <a href="{{ path('main_index') }}">Retour à l'accueil</a>
+    </p>
+{% endblock %}
