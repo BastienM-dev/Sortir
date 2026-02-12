@@ -3,7 +3,9 @@
 {% block title %}Détail de la sortie{% endblock %}
 
 {% block body %}
-    <h1>Détails de la sortie</h1>
+    <h2>Détails de la sortie</h2>
+    <div class="row mb-5">
+    </div>
 
     {# ✅ Affichage photo sortie si elle existe #}
     {% if sortie.photoFilename %}
@@ -21,8 +23,8 @@
                  onerror="this.onerror=null;this.src='{{ asset('uploads/sorties/' ~ filename) }}';">
         </div>
     {% endif %}
-
-    <div>
+<div class="row">
+    <div class="col-sm-6">
         <p><strong>Nom de la sortie : </strong> {{ sortie.nom }}</p>
         <p><strong>Description : </strong> {{ sortie.infosSortie }}</p>
         <p><strong>Date et heure de la sortie : </strong> {{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</p>
@@ -31,7 +33,8 @@
         <p><strong>Durée (en minutes) : </strong> {{ sortie.duree }}</p>
     </div>
 
-    <div>
+
+    <div class="col-sm-6">
         <p><strong>Campus : </strong> {{ sortie.site.nom }}</p>
         <p><strong>Ville : </strong> {{ sortie.lieu.ville.nom }}</p>
         <p><strong>Lieu : </strong> {{ sortie.lieu.nom }}</p>
@@ -39,11 +42,16 @@
         <p><strong>Code postal : </strong> {{ sortie.lieu.ville.codePostal }}</p>
         <p><strong>Latitude / Longitude : </strong> {{ sortie.lieu.latitude }} / {{ sortie.lieu.longitude }}</p>
     </div>
-
+</div>
+    <div class="row mb-5">
+    </div>
     <p><strong>Description et infos : </strong> {{ sortie.infosSortie }}</p>
-
+    <div class="row mb-5">
+    </div>
+    <span>
     <h3>Participants inscrits</h3>
-    <table class="table">
+    <div class="col-sm-4">
+    <table class="table table-striped text-center table-bordered">
         <thead>
         <tr>
             <th>Pseudo</th>
@@ -61,5 +69,7 @@
         {% endfor %}
         </tbody>
     </table>
+    </div>
+    </span>
 
 {% endblock %}

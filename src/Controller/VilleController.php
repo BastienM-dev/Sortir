@@ -17,7 +17,7 @@ class VilleController extends AbstractController
 {
 
 
-    #[Route('/ville/liste', name: 'ville_list')]
+    #[Route('admin/ville/liste', name: 'ville_list')]
     public function liste(VilleRepository $villeRepository, Request $request, EntityManagerInterface $em): Response
     {
         if (!$this->isGranted('ROLE_ADMIN')) {
@@ -57,7 +57,7 @@ class VilleController extends AbstractController
         return $this->render('ville/list.html.twig', ['villes' => $villes, 'villeForm' => $villeForm]);
     }
 
-    #[Route('/ville/{id}/supprimer', name: 'ville_delete', methods: ['POST'])]
+    #[Route('admin/ville/{id}/supprimer', name: 'ville_delete', methods: ['POST'])]
     public function delete(Ville $ville, Request $request, EntityManagerInterface $em): Response
     {
 
@@ -85,7 +85,7 @@ class VilleController extends AbstractController
     }
 
 
-        #[Route('/ville/ajouter', name: 'ville_ajouter', methods: ['POST', 'GET'])]
+        #[Route('admin/ville/ajouter', name: 'ville_ajouter', methods: ['POST', 'GET'])]
     public function ajouter(Request $request, EntityManagerInterface $em): Response
     {
         if (!$this->isGranted('ROLE_ADMIN')) {
@@ -111,7 +111,7 @@ class VilleController extends AbstractController
         return $this->render('ville/ajouter.html.twig', ['villeForm' => $villeForm]);
     }
 
-    #[Route('/ville/{id}/modifier', name: 'ville_edit', methods: ['POST', 'GET'])]
+    #[Route('admin/ville/{id}/modifier', name: 'ville_edit', methods: ['POST', 'GET'])]
     public function edit(Request $request, EntityManagerInterface $em, Ville $ville): Response
     {
         if (!$this->isGranted('ROLE_ADMIN')) {
