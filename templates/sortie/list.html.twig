@@ -5,70 +5,135 @@
 {% endblock %}
 
 {% block body %}
-
-    <form method="get" action="{{ path('sortie_list') }}" class="filter-form">
-        <div class="filters">
+    <h4>Filtrer les sorties</h4>
+    <span>
+    <form method="get" action="{{ path('sortie_list') }}" class="filter-form form-group">
+        <span>
+        <div class="row filters">
             {# Site dropdown #}
-            <label for="site">Site</label>
-            <select name="site" id="sortie-site">
-                {% for siteItem in siteList %}
-                    <option value="{{ siteItem.id }}"
-                            {% if app.request.query.get('site') and siteItem.id == app.request.query.get('site') %}
-                                selected
-                            {% elseif not app.request.query.get('site') and siteItem.id == site.id %}
-                                selected
-                            {% endif %}>
-                        {{ siteItem.nom }}
-                    </option>
-                {% endfor %}
-            </select>
-
-            {# Search by sortie name #}
-            <label for="sortie-search">Le nom de la sortie contient</label>
-            <input type="text" id="sortie-search" name="search" placeholder="Rechercher..."
-                   value="{{ app.request.query.get('search') }}">
-
-            {# Date range #}
-            <label for="date_from">Entre</label>
-            <input type="date" id="sortie-date_from" name="date_from" value="{{ app.request.query.get('date_from') }}">
-            <span>et</span>
-            <input type="date" id="sortie-date_to" name="date_to" value="{{ app.request.query.get('date_to') }}">
-
-            {# Checkboxes #}
-            <div class="checkboxes">
-                <label>
-                    <input type="checkbox" name="organisateur" value="1"
-                           {% if app.request.query.get('organisateur') %}checked{% endif %}>
-                    Sorties dont je suis l'organisateur/trice
-                </label>
-
-                <label>
-                    <input type="checkbox" name="inscrit" value="1"
-                           {% if app.request.query.get('inscrit') %}checked{% endif %}>
-                    Sorties auxquelles je suis inscrit/e
-                </label>
-
-                <label>
-                    <input type="checkbox" name="non_inscrit" value="1"
-                           {% if app.request.query.get('non_inscrit') %}checked{% endif %}>
-                    Sorties auxquelles je ne suis pas inscrit/e
-                </label>
-
-                <label>
-                    <input type="checkbox" name="terminees" value="1"
-                           {% if app.request.query.get('terminees') %}checked{% endif %}>
-                    Sorties terminées
-                </label>
+            <div></div>
+            <div class="col-sm-5 align-items-center">
+                <div class="row">
+                    <div class="col-auto">
+                        <label class="col-form-label" for="site">Campus</label>
+                    </div>
+                    <div class="col">
+                        <select class="form-control-sm-sm w-auto" name="site" id="sortie-site">
+                            {% for siteItem in siteList %}
+                                <option value="{{ siteItem.id }}"
+                                        {% if app.request.query.get('site') and siteItem.id == app.request.query.get('site') %}
+                                            selected
+                                        {% elseif not app.request.query.get('site') and siteItem.id == site.id %}
+                                            selected
+                                        {% endif %}>
+                                    {{ siteItem.nom }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+           {# Search by sortie name #}
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <label for="sortie-search" class="col-form-label mb-0">
+                        Le nom de la sortie contient
+                    </label>
+                </div>
+                <div class="col">
+                    <input class="form-control-sm"
+                           type="text"
+                           id="sortie-search"
+                           name="search"
+                           placeholder="Rechercher..."
+                           value="{{ app.request.query.get('search') }}">
+                </div>
             </div>
 
-            <button type="submit">Rechercher</button>
+            {# Date range #}
+           <div class="row align-items-center">
+                <div class="col-auto">
+                    <label for="date_from" class="col-form-label mb-0">
+                        Entre
+                    </label>
+                </div>
+
+                <div class="col-auto">
+                    <input class="form-control-sm"
+                           type="date"
+                           id="sortie-date_from"
+                           name="date_from"
+                           value="{{ app.request.query.get('date_from') }}">
+                </div>
+
+                <div class="col-auto">
+                    <span class="col-form-label">et</span>
+                </div>
+
+                <div class="col-auto">
+                    <input class="form-control-sm"
+                           type="date"
+                           id="sortie-date_to"
+                           name="date_to"
+                           value="{{ app.request.query.get('date_to') }}">
+                </div>
+            </div>
+            </div>
+
+            {# Checkboxes #}
+            <div class="col-sm-5">
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="organisateur" value="1"
+                           id="organisateur"
+                           {% if app.request.query.get('organisateur') %}checked{% endif %}>
+                    <label class="form-check-label" for="organisateur">
+                        Sorties dont je suis l'organisateur/trice
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="inscrit" value="1"
+                           id="inscrit"
+                           {% if app.request.query.get('inscrit') %}checked{% endif %}>
+                    <label class="form-check-label" for="inscrit">
+                        Sorties auxquelles je suis inscrit/e
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="non_inscrit" value="1"
+                           id="non_inscrit"
+                           {% if app.request.query.get('non_inscrit') %}checked{% endif %}>
+                    <label class="form-check-label" for="non_inscrit">
+                        Sorties auxquelles je ne suis pas inscrit/e
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="terminees" value="1"
+                           id="terminees"
+                           {% if app.request.query.get('terminees') %}checked{% endif %}>
+                    <label class="form-check-label" for="terminees">
+                        Sorties terminées
+                    </label>
+                </div>
+
+            </div>
+            <div class="col-sm-2">
+                <button class="btn btn-sortir" type="submit">Rechercher</button>
+            </div>
         </div>
     </form>
-
-    <table class="table">
-        <thead>
+    </span>
+    <div class="row mb-5">
+    </div>
+    <span>
+        <div class="row">
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+    <table class="table table-striped text-center table-bordered">
+        <thead class="thead-dark">
         <tr>
-            <th>Photo</th>
+{#            <th>Photo</th>#}
             <th>
                 <a href="{{ path('sortie_list', app.request.query.all|merge({
                     'sort': 'nom',
@@ -124,23 +189,23 @@
             <tr>
 
                 {# ✅ Colonne Photo (miniature) #}
-                <td>
-                    {% if sortie.photoFilename %}
-                        {% set filename = sortie.photoFilename %}
-                        {% set base = filename|split('.')|slice(0, -1)|join('.') %}
-                        {% set thumb = base ~ '.jpg' %}
+{#                <td>#}
+{#                    {% if sortie.photoFilename %}#}
+{#                        {% set filename = sortie.photoFilename %}#}
+{#                        {% set base = filename|split('.')|slice(0, -1)|join('.') %}#}
+{#                        {% set thumb = base ~ '.jpg' %}#}
 
-                        <img
-                                src="{{ asset('uploads/sorties/thumbs/' ~ thumb) }}"
-                                alt="Miniature sortie"
-                                loading="lazy"
-                                style="width:70px; height:70px; object-fit:cover; border-radius:10px;"
-                                onerror="this.onerror=null;this.src='{{ asset('uploads/sorties/' ~ filename) }}';"
-                        >
-                    {% endif %}
-                </td>
+{#                        <img#}
+{#                                src="{{ asset('uploads/sorties/thumbs/' ~ thumb) }}"#}
+{#                                alt="Miniature sortie"#}
+{#                                loading="lazy"#}
+{#                                style="width:70px; height:70px; object-fit:cover; border-radius:10px;"#}
+{#                                onerror="this.onerror=null;this.src='{{ asset('uploads/sorties/' ~ filename) }}';"#}
+{#                        >#}
+{#                    {% endif %}#}
+{#                </td>#}
 
-                <td>{{ sortie.nom }}</td>
+                <td class="text-start">{{ sortie.nom }}</td>
                 <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
                 <td>{{ sortie.dateLimiteInscription|date('d/m/Y') }}</td>
                 <td>{{ sortie.inscriptions|length }}/{{ sortie.nbInscriptionsMax }}</td>
@@ -151,7 +216,7 @@
                     {% endif %}
                 </td>
                 <td>{{ sortie.organisateur.pseudo }}</td>
-                <td>
+                <td class="text-start">
                     {# Afficher #}
                     <a href="{{ path('sortie_detail', { id: sortie.id }) }}">Afficher</a>
 
@@ -161,14 +226,14 @@
                         and sortie.inscriptions|filter(i => i.participant == app.user)|length == 0
                         and sortie.organisateur != app.user %}
                         <form method="post" action="{{ path('sortie_inscrire', {id: sortie.id}) }}" style="display:inline;">
-                            <button type="submit">S'inscrire</button>
+                            <button type="submit" class="btn btn-link">S'inscrire</button>
                         </form>
                     {% endif %}
 
                     {# Se désister (si inscrit) #}
                     {% if app.user and sortie.inscriptions|filter(i => i.participant == app.user)|length > 0 %}
                         <form method="post" action="{{ path('sortie_desister', {id: sortie.id}) }}" style="display:inline;">
-                            <button type="submit">Se désister</button>
+                            <button type="submit" class="btn btn-link">Se désister</button>
                         </form>
                     {% endif %}
 
@@ -192,7 +257,9 @@
         {% endfor %}
         </tbody>
     </table>
-
+            </div>
+            </div>
+    </span>
     {# Affichage de la pagination #}
     {% if totalPages > 1 %}
         <div class="pagination">
@@ -215,5 +282,7 @@
             {% endif %}
         </div>
     {% endif %}
+    <div class="row mb-3"></div>
+    <a href="https://example.com" class="btn btn-sortir">Créer un sortie</a>
 
 {% endblock %}
