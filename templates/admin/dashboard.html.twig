@@ -6,9 +6,14 @@
 
 {% block body %}
     <h1 class="text-center">Page d'administration</h1>
-    <div>
-        <a class="btn btn-primary" href="{{ path('site_list') }}">Gérer les campus</a>
-        <a class="btn btn-primary" href="{{ path('ville_list') }}">Gérer les villes</a>
-        <a class="btn btn-primary" href="{{ path('admin_users') }}">Gérer les utilisateurs</a>
+
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="d-flex gap-3">
+            <a class="btn btn-sortir" href="{{ path('site_list') }}">Gérer les campus</a>
+            <a class="btn btn-sortir" href="{{ path('ville_list') }}">Gérer les villes</a>
+            <a class="btn btn-sortir" href="{{ path('admin_users') }}">Gérer les utilisateurs</a>
+        </div>
     </div>
+
+
 {% endblock %}

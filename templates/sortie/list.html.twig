@@ -6,9 +6,9 @@
 
 {% block body %}
     <h4>Filtrer les sorties</h4>
-    <span>
+
     <form method="get" action="{{ path('sortie_list') }}" class="filter-form form-group">
-        <span>
+
         <div class="row filters">
             {# Site dropdown #}
             <div></div>
@@ -124,10 +124,9 @@
             </div>
         </div>
     </form>
-    </span>
     <div class="row mb-5">
     </div>
-    <span>
+
         <div class="row">
             <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
     <table class="table table-striped text-center table-bordered">
@@ -259,7 +258,7 @@
     </table>
             </div>
             </div>
-    </span>
+
     {# Affichage de la pagination #}
     {% if totalPages > 1 %}
         <div class="pagination">
