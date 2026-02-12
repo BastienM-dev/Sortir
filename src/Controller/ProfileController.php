@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Participant;
-use App\Form\ProfilePhotoType;
 use App\Form\ProfileType;
+use App\Repository\ParticipantRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,95 +15,77 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ProfileController extends AbstractController
 {
-    /**
-     * PAGE PROFIL (infos + mot de passe)
-     * Route stable : /profil
-     */
     #[Route('/profil', name: 'profil_edit')]
     public function edit(
         Request $request,
         EntityManagerInterface $em,
-        UserPasswordHasherInterface $passwordHasher
+        ParticipantRepository $participantRepository,
+        UserPasswordHasherInterface $passwordHasher,
+        SluggerInterface $slugger
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
-        /** @var Participant $user */
+        /** @var Participant|null $user */
         $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('Utilisateur non trouvé.');
+        }
 
-        // Form lié à l'utilisateur (modifie directement l'entité)
         $form = $this->createForm(ProfileType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // Mot de passe : champ non mappé => on hash seulement s'il est rempli
-            $plainPassword = $form->get('plainPassword')->getData();
-            if (!empty($plainPassword)) {
-                $user->setPassword(
-                    $passwordHasher->hashPassword($user, $plainPassword)
-                );
+            // 1) Mot de passe optionnel
+            $plainPassword = $form->get('plainPassword')->get('first')->getData();
+            if ($plainPassword !== null && trim($plainPassword) !== '') {
+                if (mb_strlen($plainPassword) < 6) {
+                    $this->addFlash('error', 'Le mot de passe doit contenir au moins 6 caractères.');
+                    return $this->redirectToRoute('profil_edit');
+                }
+                $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
+            }
+
+            // 2) Photo optionnelle
+            $photoFile = $form->get('photo')->getData();
+            if ($photoFile) {
+                try {
+                    $uploadDir = $this->getParameter('uploads_photos');
+
+                    if (!is_dir($uploadDir)) {
+                        throw new \RuntimeException("Le dossier d'upload n'existe pas : " . $uploadDir);
+                    }
+                    if (!is_writable($uploadDir)) {
+                        throw new \RuntimeException("Le dossier d'upload n'est pas accessible en écriture : " . $uploadDir);
+                    }
+
+                    $originalFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $slugger->slug($originalFilename);
+
+                    $ext = $photoFile->guessExtension() ?: ($photoFile->getClientOriginalExtension() ?: 'bin');
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $ext;
+
+                    $photoFile->move($uploadDir, $newFilename);
+
+                    $user->setPhotoFilename($newFilename);
+                    $this->addFlash('success', "L'image a été bien chargée.");
+                } catch (\Throwable $e) {
+                    $this->addFlash('error', "Erreur lors de l'upload : " . $e->getMessage());
+                }
             }
 
             $em->flush();
-            $this->addFlash('success', 'Profil mis à jour');
+            $this->addFlash('success', 'Profil mis à jour.');
 
             return $this->redirectToRoute('profil_edit');
         }
 
+        // user "fresh" (toujours à jour, même si app.user est en retard)
+        $freshUser = $participantRepository->find($user->getId());
+
         return $this->render('profil/edit.html.twig', [
             'profileForm' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * PAGE PHOTO (upload uniquement)
-     * Route existante conservée : /profil/photo
-     * code Justine (slug + move + setPhotoFilename).
-     */
-    #[Route('/profil/photo', name: 'profil_photo_edit')]
-    public function editPhoto(
-        Request $request,
-        EntityManagerInterface $em,
-        SluggerInterface $slugger
-    ): Response {
-        $this->denyAccessUnlessGranted('ROLE_USER');
-
-        /** @var Participant $user */
-        $user = $this->getUser();
-
-        $form = $this->createForm(ProfilePhotoType::class);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $photoFile = $form->get('photo')->getData();
-
-            if ($photoFile) {
-                $originalFilename = pathinfo(
-                    $photoFile->getClientOriginalName(),
-                    PATHINFO_FILENAME
-                );
-
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$photoFile->guessExtension();
-
-                $photoFile->move(
-                    $this->getParameter('profile_photos_dir'),
-                    $newFilename
-                );
-
-                // Ton champ : photoFilename
-                $user->setPhotoFilename($newFilename);
-                $em->flush();
-
-                $this->addFlash('success', 'Photo mise à jour ✅');
-
-                // ✅ UX : retour au profil
-                return $this->redirectToRoute('profil_edit');
-            }
-        }
-
-        return $this->render('profil/photo.html.twig', [
-            'form' => $form->createView(),
+            'user' => $freshUser ?? $user,
         ]);
     }
 }

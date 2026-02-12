@@ -1,38 +1,48 @@
+/* =========================
+   PAGE PROFIL (layout maquette + style arrondi)
+========================= */
+
 .profile-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    padding-bottom: 60px;
 }
 
+/* Titre principal */
 .profile-title {
-    margin: 40px 0 20px;
     font-size: 40px;
     font-weight: 800;
+    margin-bottom: 30px;
 }
 
-.profile-grid {
-    width: 900px;
-    display: grid;
-    grid-template-columns: 240px 1fr 240px;
-    gap: 30px;
-    align-items: start;
+/* Wrapper global (même largeur que la maquette) */
+.profile-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
 }
 
-.profile-photo .photo-box {
-    width: 220px;
-    height: 160px;
-    border: 3px solid #000;
+/* Colonne photo centrée */
+.profile-page .col-md-4 {
     display: flex;
-    align-items: center;
     justify-content: center;
-    font-size: 60px;
+    align-items: flex-start;
 }
 
-.profile-form {
-    width: 100%;
+/* Taille avatar */
+.avatar-round,
+.avatar-placeholder {
+    width: 180px;
+    height: 180px;
 }
 
-.profile-form .row {
+/* Colonne formulaire : petit décalage (maquette) */
+.profile-page .col-md-6 {
+    padding-left: 40px;
+}
+
+/* =========================
+   LIGNES FORMULAIRE : label | input
+========================= */
+
+.form-row {
     display: grid;
     grid-template-columns: 160px 1fr;
     align-items: center;
@@ -40,60 +50,125 @@
     margin-bottom: 14px;
 }
 
-.profile-form label {
+/* Label */
+.form-label-col label {
     font-weight: bold;
+    margin: 0;
 }
 
-.profile-form input {
-    width: 100%;
+/* ✅ Inputs arrondis (style ancien / Bootstrap-like) */
+.sortir-input {
     height: 34px;
-    border: 3px solid #000;
-    padding: 4px 8px;
+    font-size: 14px;
+
+    border: 1px solid #ced4da !important;
+    border-radius: 6px !important;
+
+    box-shadow: none !important;
+    padding: 4px 10px;
+    background: #fff;
 }
 
-.fake-select {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.fake-select input[disabled] {
+/* Disabled (campus) */
+.sortir-input:disabled {
     background: #f3f3f3;
 }
 
-.fake-select .arrow {
-    font-weight: bold;
+/* =========================
+   Alerts centrées (mais pas énormes)
+========================= */
+
+.alert-sortir {
+    max-width: 900px;
+    margin: 0 auto 12px auto;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 14px;
 }
 
-.hint {
-    margin: -8px 0 14px 178px;
-    font-size: 12px;
-    color: #555;
+/* =========================
+   SORTIR UI - compact wireframe
+========================= */
+
+/* Alerts plus discrètes (maquette) */
+.alert-sortir {
+    padding: 8px 12px;
+    max-width: 900px;
+    margin: 0 auto 10px auto;
+    font-size: 14px;
 }
 
-.actions {
-    margin-top: 30px;
-    display: flex;
-    justify-content: center;
-}
-
-.btn-save {
+/* Bouton Sortir : taille maquette */
+.btn-sortir {
     border: 3px solid #000;
     background: #fff;
-    padding: 14px 28px;
     font-weight: bold;
-    cursor: pointer;
     box-shadow: 4px 4px 0 #000;
+    border-radius: 0;
+    padding: 10px 22px;          /* ✅ plus petit que Bootstrap */
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-block;
 }
 
-.btn-save:hover {
+.btn-sortir:hover {
     transform: translateY(-1px);
 }
 
-.profile-note .note {
-    background: #f7e08a;
-    border: 2px solid #000;
-    padding: 14px;
-    font-weight: bold;
+/* Variante bouton principal (Enregistrer) */
+.btn-sortir--primary {
+    background: #e0e0e0;
+    border: 2px solid #444;
+    color: #000;
+    padding: 8px 26px;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
 }
-/** j'ai écris un commentaire pour faire un push hahahhah */
+
+/* Effet au survol */
+.btn-sortir--primary:hover {
+    background: #f2f2f2;      /* gris plus clair */
+    border-color: #000;
+    transform: translateY(-1px);
+}
+
+/* Effet clic */
+.btn-sortir--primary:active {
+    transform: translateY(0);
+    background: #d6d6d6;
+}
+
+
+/* Avatar taille maquette */
+.avatar-round,
+.avatar-placeholder {
+    width: 180px;
+    height: 180px;
+}
+
+/* Titres plus proches maquette */
+.profile-page h1 {
+    font-size: 40px;
+    font-weight: 800;
+}
+/* Force bouton Enregistrer visible */
+button.btn-sortir,
+button.btn-sortir--primary,
+a.btn-sortir,
+a.btn-sortir--primary {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* Si jamais tu n'as mis que btn-sortir--primary (sans btn-sortir) */
+.btn-sortir--primary {
+    border: 2px solid #444 !important;
+    background: #e0e0e0 !important;
+    color: #000 !important;
+    padding: 8px 26px !important;
+    border-radius: 6px !important;
+}

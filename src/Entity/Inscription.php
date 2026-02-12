@@ -10,6 +10,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'inscriptions')]
 class Inscription
 {
+    /**
+     * Clé primaire composite : (participant, sortie)
+     * Chaque inscription est unique pour un couple participant/sortie.
+     */
     #[ORM\Id]
     #[ORM\ManyToOne(inversedBy: 'inscriptions')]
     #[ORM\JoinColumn(name: 'participants_no_participant', referencedColumnName: 'no_participant', nullable: false)]
@@ -17,8 +21,8 @@ class Inscription
 
     #[ORM\Id]
     #[ORM\ManyToOne(inversedBy: 'inscriptions')]
-    #[ORM\JoinColumn(name: 'sorties_no_sortie', referencedColumnName: 'no_sortie', nullable: true)]
-    private ?Sortie $sortie;
+    #[ORM\JoinColumn(name: 'sorties_no_sortie', referencedColumnName: 'no_sortie', nullable: false)]
+    private Sortie $sortie;
 
     #[ORM\Column(name: 'date_inscription', type: Types::DATETIME_MUTABLE, nullable: false)]
     private \DateTimeInterface $dateInscription;
@@ -39,12 +43,12 @@ class Inscription
         return $this;
     }
 
-    public function getSortie(): ?Sortie
+    public function getSortie(): Sortie
     {
         return $this->sortie;
     }
 
-    public function setSortie(?Sortie $sortie): static
+    public function setSortie(Sortie $sortie): static
     {
         $this->sortie = $sortie;
         return $this;
