@@ -622,4 +622,27 @@ class SortieController extends AbstractController
         imagedestroy($src);
         imagedestroy($dst);
     }
+
+
+    #[Route('/{id}/supprimer', name: 'sortie_supprimer', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function supprimer(
+        Sortie $sortie,
+        EntityManagerInterface $em,
+        EtatRepository $etatRepository,
+        Request $request
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $participant = $this->getUser();
+
+        if ($sortie->getOrganisateur() !== $participant && !$this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('error', 'Seul l\'organisateur peut annuler cette sortie.');
+            return $this->redirectToRoute('sortie_list');
+        }
+        $em->remove($sortie);
+        $em->flush();
+
+        $this->addFlash('success', 'La sortie a bien été supprimée.');
+
+        return $this->redirectToRoute('sortie_list');
+    }
 }
