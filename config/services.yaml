@@ -5,6 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     uploads_photos: '%kernel.project_dir%/public/uploads/photos'
+    sortie_photos_dir: '%kernel.project_dir%/public/uploads/sorties'
+    sortie_thumbs_dir: '%kernel.project_dir%/public/uploads/sorties/thumbs'
 
 services:
     # default configuration for services in *this* file
