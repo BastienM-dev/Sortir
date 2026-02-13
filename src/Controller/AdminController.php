@@ -42,7 +42,7 @@ class AdminController extends AbstractController
 
         $users = $repo->searchUsers($q ?: null, $actif ?: null, $admin ?: null);
 
-        return $this->render('admin/users/index.html.twig', [
+        return $this->render('admin/users/users.html.twig', [
             'users' => $users,
             'q' => $q,
             'actif' => $actif,

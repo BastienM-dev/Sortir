@@ -11,7 +11,7 @@
     {% if sortie.photoFilename %}
         <div style="margin: 15px 0;">
 
-            {# ✅ Miniature en priorité (jpg) + fallback vers l'original si elle n'existe pas #}
+            {# Miniature en priorité (jpg) + fallback vers l'original si elle n'existe pas #}
             {% set filename = sortie.photoFilename %}
             {% set base = filename|split('.')|slice(0, -1)|join('.') %}
             {% set thumb = base ~ '.jpg' %}
@@ -61,7 +61,7 @@
         <tbody>
         {% for participant in participants %}
             <tr>
-                <td><a href="{{ path('participant_show', { id: participant.id }) }}" >{{ participant.pseudo }}</a></td>
+                <td><a href="{{ path('participant_profile', { id: participant.id }) }}" >{{ participant.pseudo }}</a></td>
                 <td> {{ participant.prenom }} {{ participant.nom }}</td>
             </tr>
         {% else %}
