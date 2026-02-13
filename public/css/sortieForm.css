@@ -1,0 +1,76 @@
+.sortie-form h1 {
+    color: #0066cc;
+    font-weight: 600;
+}
+
+.sortie-form > div > div > div {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 1rem;
+}
+
+.sortie-form .row label {
+    width: 250px;
+    text-align: left;
+    margin-bottom: 0;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.sortie-form .mb-3 label {
+    width: 250px;
+    text-align: left;
+    margin-bottom: 0;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.sortie-form .form-control,
+.sortie-form select,
+.sortie-form textarea {
+    flex: 1;
+}
+
+.sortie-form .mb-3 .form-control,
+.sortie-form .mb-3 select,
+.sortie-form .mb-3 textarea {
+    flex: 1;
+}
+
+.sortie-form .d-flex.gap-2 {
+    flex: 1;
+}
+
+.sortie-form .form-control:focus {
+    border-color: #0066cc;
+    box-shadow: 0 0 0 0.2rem rgba(0, 102 ,204, 0.25);
+}
+
+.sortie-form textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.sortie-form .btn {
+    min-width: 180px;
+    font-weight: 500;
+}
+
+.sortie-form .btn-outline-primary {
+    min-width: auto;
+    width: 45px;
+    height: 38px;
+    font-size: 20px;
+    line-height: 1;
+    padding: 0;
+}
+
+.lieu-info {
+    font-size: 0.95rem;
+    margin-top: 1rem;
+}
+
+.lieu-info p {
+    line-height: 1.6;
+}

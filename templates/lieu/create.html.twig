@@ -2,13 +2,30 @@
 
 {% block title %}Créer un lieu{% endblock %}
 
+{%  block stylesheets %}
+    <link rel="stylesheet" href="{{  asset('css/sortieForm.css') }}">
+{% endblock %}
+
 {% block body %}
-    <h1>Créer un nouveau lieu</h1>
+    <div class="container mt-5">
+            <h1 class="text-center mb-4">Créer un nouveau lieu</h1>
 
-    {{ form_start(form) }}
-    {{ form_widget(form) }}
+            {{ form_start(form, {'attr': {'class': 'sortie-form'}}) }}
 
-    <button type="submit">Créer le lieu</button>
-    <a href="{{ path('lieu_list') }}">Annuler</a>
-    {{ form_end(form) }}
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 offset-md-3">
+                    {{ form_row(form.nom) }}
+                    {{ form_row(form.rue) }}
+                    {{ form_row(form.latitude) }}
+                    {{ form_row(form.longitude) }}
+                    {{ form_row(form.ville) }}
+                </div>
+            </div>
+        <div class="text-center mb-5">
+            <button type="submit" class="btn btn-primary btn-lg me-2">Créer le lieu</button>
+            <a href="{{ path('sortie_create') }}" class="btn btn-secondary btn-lg">Annuler</a>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
 {% endblock %}
