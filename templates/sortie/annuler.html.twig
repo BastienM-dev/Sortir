@@ -16,7 +16,9 @@
                 <ul>
                     <li><strong>Nom :</strong> {{ sortie.nom }}</li>
                     <li><strong>Date :</strong> {{ sortie.dateHeureDebut|date('d/m/Y à H:i') }}</li>
+                    <li><strong>Campus :</strong> {{ sortie.site.nom }}</li>
                     <li><strong>Lieu :</strong> {{ sortie.lieu.nom }}</li>
+                    <li><strong>Ville :</strong> {{ sortie.lieu.ville.nom }}</li>
                     <li><strong>Participants inscrits :</strong> {{ sortie.nbInscrits }} / {{ sortie.nbInscriptionsMax }}</li>
                 </ul>
 

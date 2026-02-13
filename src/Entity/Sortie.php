@@ -263,12 +263,7 @@ class Sortie
 
     public function removeInscription(Inscription $inscription): static
     {
-        if ($this->inscriptions->removeElement($inscription)) {
-            if ($inscription->getSortie() === $this) {
-                $inscription->setSortie(null);
-            }
-        }
-
+        $this->inscriptions->removeElement($inscription);
         return $this;
     }
 

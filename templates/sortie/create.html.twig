@@ -2,22 +2,56 @@
 
 {% block title %}Créer une sortie{% endblock %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/sortieForm.css') }}">
+{% endblock %}
+
 {% block body %}
-    <h1>Créer une sortie</h1>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Créer une sortie</h1>
 
-    {{ form_start(form) }}
-    {{ form_row(form.nom) }}
-    {{ form_row(form.dateHeureDebut) }}
-    {{ form_row(form.dateLimiteInscription) }}
-    {{ form_row(form.nbInscriptionsMax) }}
-    {{ form_row(form.duree) }}
-    {{ form_row(form.infosSortie) }}
-    {{ form_row(form.urlPhoto) }}
-    {{ form_row(form.lieu) }}
+        {{ form_start(form, {'attr': {'class': 'sortie-form'}}) }}
 
-    <div style="display:flex; gap:10px; margin-top:15px;">
-        {{ form_widget(form.save) }}
-        {{ form_widget(form.publish) }}
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                {{ form_row(form.nom) }}
+                {{ form_row(form.dateHeureDebut) }}
+                {{ form_row(form.dateLimiteInscription) }}
+                {{ form_row(form.nbInscriptionsMax) }}
+                {{ form_row(form.duree) }}
+            </div>
+
+            <div class="col-md-6">
+                {{ form_row(form.ville) }}
+                <div class="mb-3">
+                    <label class="form-label">Lieu</label>
+                    <div class="d-flex gap-2">
+                        {{ form_widget(form.lieu) }}
+                        <a href="{{ path('lieu_create') }}" class="btn btn-outline-primary" target="_blank" title="Créer un nouveau lieu">
+                            +
+                        </a>
+                    </div>
+                    {{ form_errors(form.lieu) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            {{ form_row(form.infosSortie) }}
+        </div>
+
+        <div class="text-center mb-5">
+            {{ form_widget(form.save, {
+                'label': 'Enregistrer (En création)',
+                'attr': {'class': 'btn btn-primary btn-lg me-2'}
+            }) }}
+            {{ form_widget(form.publish, {
+                'label': 'Publier (Ouverte)',
+                'attr': {'class': 'btn btn-success btn-lg me-2'}
+            }) }}
+            <a href="{{ path('sortie_list') }}" class="btn btn-secondary btn-lg">Retour à la liste</a>
+        </div>
+
+        {{ form_end(form) }}
     </div>
-    {{ form_end(form) }}
 {% endblock %}
