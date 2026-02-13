@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ParticipantRepository::class)]
@@ -26,6 +27,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 30, unique: true, nullable: false)]
     #[Assert\NotBlank(message: 'Le pseudo est obligatoire')]
     #[Assert\Length(max: 30)]
+    #[Groups(['getSorties'])]
     private string $pseudo;
 
     #[ORM\Column(length: 30, nullable: false)]

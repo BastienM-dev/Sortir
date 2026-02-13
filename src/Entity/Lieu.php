@@ -12,6 +12,7 @@ use Doctrine\DBAL\Types\Types;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: LieuRepository::class)]
@@ -35,27 +36,27 @@ class Lieu
     #[Assert\NotBlank(message: 'Le nom du lieu est obligatoire')]
 
     #[Assert\Length(max: 30)]
-
+    #[Groups(['getSorties'])]
     private string $nom;
 
     #[ORM\Column(length: 30, nullable: true)]
 
     #[Assert\Length(max: 30)]
-
+    #[Groups(['getSorties'])]
     private ?string $rue = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 8, nullable: true)]
-
+    #[Groups(['getSorties'])]
     private ?string $latitude = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 11, scale: 8, nullable: true)]
-
+    #[Groups(['getSorties'])]
     private ?string $longitude = null;
 
     #[ORM\ManyToOne(inversedBy: 'lieux')]
 
     #[ORM\JoinColumn(name: 'villes_no_ville', referencedColumnName: 'no_ville', nullable: false)]
-
+    #[Groups(['getSorties'])]
     private Ville $ville;
 
     /**

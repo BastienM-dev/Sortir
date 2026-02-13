@@ -6,6 +6,7 @@ use App\Repository\VilleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: VilleRepository::class)]
@@ -20,11 +21,13 @@ class Ville
     #[ORM\Column(name: 'nom_ville', length: 30, nullable: false)]
     #[Assert\NotBlank(message: 'Le nom de la ville est obligatoire')]
     #[Assert\Length(max: 30)]
+    #[Groups(['getSorties'])]
     private string $nom;
 
     #[ORM\Column(name: 'code_postal', length: 10, nullable: false)]
     #[Assert\NotBlank(message: 'Le code postal est obligatoire')]
     #[Assert\Length(max: 10)]
+    #[Groups(['getSorties'])]
     private string $codePostal;
 
     /**
