@@ -1,159 +1,94 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}  Détail du profil - {{ participant.pseudo }}{% endblock %}
+{% block title %}
+    Profil - {{ participant.pseudo }}
+{% endblock %}
 
 {% block body %}
-    <main class="page">
+    <main class="page-content container">
 
-        {# Zone logo + nav comme sur la maquette #}
-        <header class="page-header">
-            <div class="brand">
-                <a href="{{ path('main_index') }}" class="brand-logo" aria-label="Accueil">
-                    <img src="{{ asset('img/logo-sortir.png') }}" alt="Logo Sortir.com">
-                </a>
-                <span class="brand-name">Sortir.com</span>
-            </div>
+        <h1 class="text-center mb-5">
+            {{ participant.pseudo }}
+        </h1>
 
-            <nav class="top-nav">
-                <a href="{{ path('main_index') }}">Accueil</a>
-                <span class="top-nav-sep">|</span>
-                <a href="{{ path('profil_detail', {id: app.user.id}) }}">Mon profil</a>
-                <span class="top-nav-sep">|</span>
-                <a href="{{ path('app_logout') }}">Se déconnecter</a>
-            </nav>
-        </header>
+        <div class="row align-items-start justify-content-center">
 
-        {# Titre centré #}
-        <h1 class="profile-title">{{ participant.pseudo }}</h1>
-
-        {# Bloc profil (photo + infos) #}
-        <section class="profile">
-            <div class="profile-photo">
+            {# Photo #}
+            <div class="col-md-4 text-center mb-4">
                 {% if participant.photoFilename %}
                     <img
-                            class="profile-avatar"
                             src="{{ asset('uploads/profiles/' ~ participant.photoFilename) }}"
-                            alt="Photo de profil de {{ participant.pseudo }}"
+                            alt="Photo de profil"
+                            class="img-fluid rounded border border-dark"
+                            style="max-width:250px;"
                     >
                 {% else %}
                     <img
-                            class="profile-avatar profile-avatar--default"
                             src="{{ asset('img/default-avatar.png') }}"
                             alt="Avatar par défaut"
+                            class="img-fluid rounded border border-dark"
+                            style="max-width:250px;"
                     >
                 {% endif %}
             </div>
 
-            <div class="profile-info">
-                <dl class="profile-dl">
-                    <div class="profile-row">
-                        <dt>Campus</dt>
-                        <dd>{{ participant.site.nom }}</dd>
-                    </div>
 
-                    <div class="profile-row">
-                        <dt>Prénom</dt>
-                        <dd>{{ participant.prenom }}</dd>
-                    </div>
+            <div class="col-md-6">
 
-                    <div class="profile-row">
-                        <dt>Nom</dt>
-                        <dd>{{ participant.nom }}</dd>
-                    </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Campus</div>
+                    <div class="col-8">{{ participant.site.nom }}</div>
+                </div>
 
-                    <div class="profile-row">
-                        <dt>Téléphone</dt>
-                        <dd>{{ participant.telephone ?: '—' }}</dd>
-                    </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Prénom</div>
+                    <div class="col-8">{{ participant.prenom }}</div>
+                </div>
 
-                    <div class="profile-row">
-                        <dt>Email</dt>
-                        <dd>
-                            <a class="profile-mail" href="mailto:{{ participant.mail }}">{{ participant.mail }}</a>
-                        </dd>
-                    </div>
-                </dl>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Nom</div>
+                    <div class="col-8">{{ participant.nom }}</div>
+                </div>
 
-                {# Actions visibles seulement si c'est mon profil (optionnel, mais pratique) #}
-                {% if app.user and app.user.id == participant.id %}
-                    <div class="profile-actions">
-                        <a class="btn btn-primary" href="{{ path('profil_edit') }}">Modifier mon profil</a>
-                        <a class="btn btn-secondary" href="{{ path('profil_photo_edit') }}">Changer ma photo</a>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Téléphone</div>
+                    <div class="col-8">
+                        {{ participant.telephone ?: '—' }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Email</div>
+                    <div class="col-8">
+                        <a href="mailto:{{ participant.mail }}">
+                            {{ participant.mail }}
+                        </a>
+                    </div>
+                </div>
+
+                {% if participant.administrateur %}
+                    <div class="row mb-3">
+                        <div class="col-4 fw-bold">Rôle</div>
+                        <div class="col-8">Administrateur</div>
                     </div>
                 {% endif %}
+
+                {% if app.user and app.user.id == participant.id %}
+                    <div class="mt-4">
+                        <a class="btn btn-primary me-2"
+                           href="{{ path('profil_edit') }}">
+                            Modifier mon profil
+                        </a>
+
+                        <a class="btn btn-secondary"
+                           href="{{ path('profil_photo_edit') }}">
+                            Changer ma photo
+                        </a>
+                    </div>
+                {% endif %}
+
             </div>
-        </section>
+        </div>
 
     </main>
-{% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h1>Profil de {{ participant.pseudo }}</h1>
-
-    {# ===== Photo de profil ===== #}
-    <div style="margin-bottom: 20px;">
-        {% if participant.photoFilename %}
-            <img src="{{ asset('uploads/profiles/' ~ participant.photoFilename) }}"
-                 alt="Photo de profil"
-                 style="max-width:200px; border-radius:10px;">
-        {% else %}
-            <img src="{{ asset('img/default-avatar.png') }}"
-                 alt="Avatar par défaut"
-                 style="max-width:200px; border-radius:10px; opacity:0.7;">
-        {% endif %}
-    </div>
-
-    {# Seulement si c'est MON profil #}
-    {% if app.user and app.user.id == participant.id %}
-        <a href="{{ path('profil_edit') }}" class="btn btn-primary">Modifier mon profil</a>
-    {% endif %}
-
-    {# ===== Sécurité : seul le propriétaire du profil peut changer la photo ===== #}
-    {% if app.user and app.user.id == participant.id %}
-        <p style="margin-bottom: 20px;">
-            <a href="{{ path('profil_photo_edit') }}">Changer ma photo</a>
-        </p>
-    {% endif %}
-
-    <div>
-        <p><strong>Nom :</strong> {{ participant.nom }}</p>
-        <p><strong>Prénom :</strong> {{ participant.prenom }}</p>
-
-        <p><strong>Email :</strong> {{ participant.mail }}</p>
-
-        {% if participant.telephone %}
-            <p><strong>Téléphone :</strong> {{ participant.telephone }}</p>
-        {% endif %}
-
-        <p><strong>Site :</strong> {{ participant.site.nom }}</p>
-
-        <p>
-            <strong>Statut :</strong>
-            {% if participant.actif %}
-                Actif
-            {% else %}
-                Inactif
-            {% endif %}
-        </p>
-
-        {% if participant.administrateur %}
-            <p><strong>Rôle :</strong> Administrateur</p>
-        {% endif %}
-    </div>
-
-    <p style="margin-top: 20px;">
-        <a href="{{ path('main_index') }}">Retour à l'accueil</a>
-    </p>
 {% endblock %}
