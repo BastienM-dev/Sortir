@@ -20,6 +20,7 @@ class LieuType extends AbstractType
                 'attr' => [
                     'placeholder' => 'Ex: Bowling de Niort',
                     'maxlength' => 30,
+                    'class' => 'form-control',
                 ],
             ])
             ->add('rue', TextType::class, [
@@ -28,6 +29,7 @@ class LieuType extends AbstractType
                 'attr' => [
                     'placeholder' => 'Ex: 12 rue de la République',
                     'maxlength' => 30,
+                    'class' => 'form-control',
                 ],
             ])
             ->add('latitude', TextType::class, [
@@ -35,6 +37,7 @@ class LieuType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'placeholder' => 'Ex: 46.323426',
+                    'class' => 'form-control',
                 ],
             ])
             ->add('longitude', TextType::class, [
@@ -42,6 +45,7 @@ class LieuType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'placeholder' => 'Ex: -0.464779',
+                    'class' => 'form-control',
                 ],
             ])
             ->add('ville', EntityType::class, [
@@ -49,6 +53,9 @@ class LieuType extends AbstractType
                 'class' => Ville::class,
                 'choice_label' => 'nom',
                 'placeholder' => '-- Choisir une ville --',
+                'attr' => [
+                    'class' => 'form-control',
+                ]
             ])
         ;
     }
