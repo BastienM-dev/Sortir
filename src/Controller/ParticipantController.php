@@ -9,14 +9,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class ParticipantController extends AbstractController
 {
-    #[Route('/participant/{id}', name: 'participant_show', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[Route('/participant/{id}', name: 'participant_profile', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Participant $participant): Response
     {
-        // ✅ Optionnel : si vous voulez réserver la consultation aux utilisateurs connectés,
+        // Optionnel : si vous voulez réserver la consultation aux utilisateurs connectés,
         // décommente la ligne suivante.
         // $this->denyAccessUnlessGranted('ROLE_USER');
 
-        return $this->render('participant/show.html.twig', [
+        return $this->render('participant/profile.html.twig', [
             'participant' => $participant,
         ]);
     }

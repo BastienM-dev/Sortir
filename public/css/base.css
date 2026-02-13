@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 :root {
     --table-border-color: rgb(0, 64, 122);
 }
@@ -6,6 +8,7 @@
 /* =========================
    RESET MINIMAL
 ========================= */
+>>>>>>> 478bc55588db44e9ea7b967374894498ef65b301
 * {
     box-sizing: border-box;
     margin: 0;
@@ -34,62 +37,56 @@ footer {
 }
 
 /* =========================
-   NAVBAR PROPRE & PROPORTIONNELLE
+   NAVBAR
 ========================= */
-
 .site-header {
     width: 100%;
     background: rgb(0, 64, 122);
     color: #fff;
 }
 
-/* Conteneur centré */
 .nav-container {
     width: 100%;
-    padding: 12px 40px;   /* plus d’air */
+    padding: 12px 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
+
 .nav-left {
     display: flex;
     align-items: center;
     gap: 20px;
-    min-width: 220px; /* garde le logo stable */
+    min-width: 220px;
 }
 
-
-/* Logo plus collé à gauche */
 .nav-logo {
     width: 80px;
     height: 80px;
-    margin-left: 0;   /* collé bord */
+    margin-left: 0;
 }
 
-/* Titre plus grand et plus présent */
 .nav-brand {
-    font-size: 30px;  /* 🔥 plus grand */
+    font-size: 30px;
     font-weight: 800;
     letter-spacing: 0.5px;
     color: #fff;
 }
 
 .nav-right {
-    flex: 1;
     display: flex;
-    justify-content: flex-start;   /* au lieu de center */
-    margin-left: 600px;            /* ajuste ici */
-    gap: 25px;
     align-items: center;
+    gap: 25px;
+    margin-left: auto;
+    justify-content: flex-end;
 }
 
-
-/* Email */
 .nav-user {
     font-size: 14px;
     font-weight: 500;
     opacity: 0.9;
 }
+
 .nav-link {
     color: #fff;
     text-decoration: none;
@@ -103,7 +100,7 @@ footer {
 .nav-link:hover {
     background: rgba(255,255,255,0.15);
 }
-/* Responsive */
+
 @media (max-width: 768px) {
     .nav-container {
         flex-direction: column;
@@ -112,7 +109,9 @@ footer {
     }
 
     .nav-right {
+        margin-left: 0;
         justify-content: center;
+        flex-wrap: wrap;
     }
 
     main.page-content,
@@ -134,8 +133,7 @@ a:hover {
 
 /* =========================
    THEME SORTIR : overrides Bootstrap
-   -> look "maquette" (bordures noires, shadow)
-========================= */
+  ========================= */
 
 /* Champs */
 .form-control,
@@ -163,10 +161,8 @@ a:hover {
     font-weight: bold;
 }
 
-/* Bouton Sortir (réutilisable partout) */
 .btn-sortir {
     border: 3px solid #000;
-    background: #fff;
     font-weight: bold;
     box-shadow: 4px 4px 0 #000;
     border-radius: 0;
@@ -180,6 +176,17 @@ a:hover {
     transform: translateY(-1px);
 }
 
+
+.admin-btn {
+    /* ressemble à un bouton Bootstrap par défaut */
+    display: inline-block;
+    padding: .375rem .75rem;
+    border-radius: .375rem;
+    border: 1px solid transparent;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
 /* Avatar rond (profil) */
 .avatar-round {
     border-radius: 50%;
@@ -188,7 +195,6 @@ a:hover {
     display: inline-block;
 }
 
-/* Placeholder avatar */
 .avatar-placeholder {
     width: 200px;
     height: 200px;
@@ -206,6 +212,8 @@ hr {
     border-top: 2px solid #000;
     opacity: 1;
 }
+<<<<<<< HEAD
+=======
 
 
 
@@ -242,3 +250,4 @@ hr {
     font-size: 13px;
 }*/
 
+>>>>>>> 478bc55588db44e9ea7b967374894498ef65b301
