@@ -217,7 +217,7 @@
                         X
                     {% endif %}
                 </td>
-                <td>{{ sortie.organisateur.pseudo }}</td>
+                <td><a href="{{ path('participant_show', { id: sortie.organisateur.id }) }}">{{ sortie.organisateur.pseudo }}</a></td>
                 <td class="text-start">
                     {# Afficher #}
                     <a href="{{ path('sortie_detail', { id: sortie.id }) }}">Afficher</a>
@@ -249,6 +249,10 @@
                         and sortie.organisateur == app.user
                         and (sortie.etat.libelle == 'Ouverte' or sortie.etat.libelle == 'Clôturée') %}
                         <a href="{{ path('sortie_annuler', {id: sortie.id}) }}">Annuler</a>
+                    {% endif %}
+
+                    {% if app.user and sortie.organisateur == app.user %}
+                        <a href="{{ path('sortie_supprimer', {id: sortie.id}) }}">Supprimer</a>
                     {% endif %}
                 </td>
             </tr>
