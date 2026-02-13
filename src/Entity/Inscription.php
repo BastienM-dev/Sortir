@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\InscriptionRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: InscriptionRepository::class)]
 #[ORM\Table(name: 'inscriptions')]
@@ -17,6 +18,7 @@ class Inscription
     #[ORM\Id]
     #[ORM\ManyToOne(inversedBy: 'inscriptions')]
     #[ORM\JoinColumn(name: 'participants_no_participant', referencedColumnName: 'no_participant', nullable: false)]
+    #[Groups(['getSorties'])]
     private Participant $participant;
 
     #[ORM\Id]

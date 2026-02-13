@@ -6,6 +6,7 @@ use App\Repository\EtatRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EtatRepository::class)]
@@ -20,6 +21,7 @@ class Etat
     #[ORM\Column(length: 30, nullable: false)]
     #[Assert\NotBlank(message: 'Le libellé de l\'état est obligatoire')]
     #[Assert\Length(max: 30)]
+    #[Groups(['getSorties'])]
     private string $libelle;
 
     /**
