@@ -217,7 +217,7 @@
                         X
                     {% endif %}
                 </td>
-                <td><a href="{{ path('participant_show', { id: sortie.organisateur.id }) }}">{{ sortie.organisateur.pseudo }}</a></td>
+                <td><a href="{{ path('participant_profile', { id: sortie.organisateur.id }) }}">{{ sortie.organisateur.pseudo }}</a></td>
                 <td class="text-start">
                     {# Afficher #}
                     <a href="{{ path('sortie_detail', { id: sortie.id }) }}">Afficher</a>
